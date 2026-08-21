@@ -1,0 +1,151 @@
+# Link-Up Project Design
+
+## Architecture
+
+The smallest and most simple decision in architecture is typically the right one.
+
+For the Link-Up application, HTML, CSS, ReScript, and standard browser APIs are
+"good enough". "Good enough" still means correct. In some domains it may mean
+feature complete (think NASA), or safety-feature complete (think a bank).
+Link-Up uses a small, framework-free PWA built with Bun and ReScript.
+
+### Application Runtime
+
+Link-Up is a mobile-first Progressive Web App (PWA) built with Bun and ReScript
+using the hard local-first model described below. It runs in supported browsers
+and as an installed PWA. Authoritative user data and essential application logic
+remain on the user's device. Peer-to-peer networking is a means of exchanging
+data, but data sovereignty — not eliminating every server — is the architectural
+goal.
+
+ReScript source lives under `src/` and is configured to compile to colocated
+`.res.mjs` ES modules. The browser UI uses HTML, CSS, the DOM, and standard Web
+and PWA APIs without a frontend framework. Bun is the project JavaScript
+runtime, package manager, and task runner.
+
+A minimal PWA shell, web app manifest, registered service worker, production
+asset pipeline, and local development server are configured. Production
+deployment remains unresolved.
+
+#### Local-First
+
+I like to think there are two definitions of "local-first". First, the *soft*
+definition: local-first software keeps data on the local client machine and uses
+servers as redundant backups or replication to other clients. Then there is the
+*hard* definition: local-first software keeps all users' data with the users.
+The user defines where and when that data can be shared. This app uses the
+second definition.
+
+#### Network Infrastructure & P2P
+
+Link-Up's authoritative user data and essential logic remain on the user's
+device. Peer connections may require signalling, and some connection designs
+may require relays. Link-Up therefore accepts remote signalling and relay
+infrastructure. Discovery, synchronization, and notification delivery may also
+rely on remote services as those designs are resolved. These systems must not
+become the authoritative home of the application or its data.
+
+The peer transport has not yet been selected. If direct peer connections are
+used, their privacy implications and whether relay-only connections are required
+must be resolved before peer networking ships.
+
+### PWA Application Boundary
+
+Link-Up runs within the browser security model. Its UI, essential application
+logic, and authoritative user data remain local. Browser and installed-PWA
+capabilities use standard Web APIs and must account for platform support.
+
+The completed PWA is intended to provide its local interface without depending
+on a remote application service. The persistence mechanism, browser storage
+APIs, schema, data lifecycle, and user-controlled export path have not yet been
+decided.
+
+### Current Proof-of-Concept Boundary
+
+The current proof of concept contains a minimal HTML application shell, web app
+manifest, browser registration entry point, application-shell service worker,
+and Bun/ReScript build and local development-server wiring.
+
+Browser installability and service-worker behavior have not yet been validated.
+
+Link-Up's product workflows, local persistence, peer discovery, signalling,
+relaying, peer transport, cryptographic identity, encryption, notifications,
+and offline delivery are also not implemented or validated.
+
+### PWA User Interface
+
+The web platform is Link-Up's user-interface runtime. ReScript compiles to
+JavaScript modules, HTML and CSS provide presentation, and supported browser
+APIs provide local storage, networking, installation, and notification
+capabilities as those parts of the design are implemented.
+
+```text
+Link-Up PWA
+├── ReScript source → JavaScript ES modules
+├── HTML and CSS user interface
+└── browser APIs → local persistence and networking
+```
+
+## Project Structure
+
+```text
+.
+├── build.js
+├── bun.lock
+├── package.json
+├── rescript.json
+└── src/
+    ├── RegisterServiceWorker.res
+    ├── ServiceWorker.res
+    ├── ServiceWorkerWebApi.res
+    ├── index.html
+    └── manifest.webmanifest
+```
+
+`rescript.json` configures ReScript to emit `.res.mjs` intermediate modules
+beside their source files. `build.js` bundles the browser registration and
+service-worker entry points as `dist/RegisterServiceWorker.js` and
+`dist/ServiceWorker.js`, copies the static shell assets, and generates the
+precache asset list and cache version. The generated `dist/` directory is
+served locally by `bun run watch`.
+
+## Local Authority
+
+Link-Up is hard local-first. Its essential business logic executes locally, and
+its authoritative user data remains under the user's control. Remote systems
+can provide discovery, signalling, relaying, synchronization, notification
+delivery, or other network capabilities, but they remain non-authoritative
+infrastructure. Peer-to-peer describes one way Link-Up devices exchange data;
+it does not define the local-first guarantee.
+
+The local application boundary is distinct from the external peer boundary:
+
+```text
+Link-Up PWA ↔ standard Web APIs ↔ on-device storage
+
+Link-Up peer ↔ untrusted network and signalling/relay infrastructure ↔ Link-Up peer
+```
+
+The persistence implementation and selected browser storage APIs remain open
+decisions.
+
+## Product Features
+
+### Profiles
+
+Users can create and update a Link-Up profile. A user's own profile is stored
+locally on the device by the Link-Up PWA. The persistence mechanism has not yet
+been decided.
+
+Users can share their profiles with other Link-Up users and view profiles that
+other users share with them. The information included in a profile has not yet
+been decided.
+
+### Messaging
+
+Users can send and receive private messages with other Link-Up users. Message
+history is stored locally on the user's device.
+
+The installed PWA can integrate with platform notifications where supported.
+How messages or notifications reach a user while Link-Up is not active, how
+users connect, and how messages are encrypted have not yet been decided.

@@ -1,0 +1,36 @@
+# LinkUp Location Model
+
+LinkUp location should be built around **geocells**: small, local discovery units used for rendezvous, profile discovery, caching, message routing hints, abuse detection, and local network organization.
+
+A geocell is not just a fixed map tile. It is a **social proximity unit**: the set of people who should feel “right next to you” when you open the app. Product-wise, it should approximate the first page of a Grindr-style nearby grid.
+
+Geocell size should be **density-adaptive**. In dense areas, a geocell may be only a few blocks. In rural areas, it may cover miles. The goal is not uniform physical size; the goal is a consistent local experience.
+
+A useful model is:
+
+```txt
+coordinate → base geocell → effective geocell → neighborhood → city → metro
+```
+
+The client keeps exact GPS private when possible, converts it into a geocell/locality identity, and joins the relevant local discovery space. Servers may assist with rendezvous, validation, abuse controls, rate limits, and fallback delivery, but the client should do as much location interpretation and local discovery work as possible.
+
+Discovery should be scoped locally first:
+
+```txt
+current geocell → adjacent geocells → neighborhood → city → metro
+```
+
+The app should avoid making exact distance the whole experience. Instead of centering the UI around `437 feet away`, it can use proximity language like:
+
+```txt
+in your area
+nearby
+same neighborhood
+across town
+```
+
+The guiding technical rule is:
+
+```txt
+A geocell is the smallest LinkUp discovery region that contains enough visible active users to feel immediately local without becoming noisy.
+```

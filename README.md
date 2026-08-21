@@ -1,23 +1,46 @@
-# PWA Starter
+# Link-Up
 
-The PWABuilder pwa-starter-basic is a simplified version of our original [PWA Starter template](https://github.com/pwa-builder/pwa-starter). It operates similarly to the original, but with fewer dependencies and closer to a VanillaJS experience. We also have a CLI tool to allow you to create a PWA template from the command line.
+Link-Up is a local-first Progressive Web App (PWA) built with Bun and
+ReScript. ReScript source lives in `src/` and compiles to colocated `.res.mjs`
+ES modules.
 
-## Jump Right In
+## Prerequisites
 
-Install the PWABuilder CLI:
+- Install Bun.
 
-`npm i -g @pwabuilder/cli`
+## Install dependencies
 
-And create a new app with this command:
+```bash
+bun install
+```
 
-`pwa create -t=basic`
+## Build the project
 
-And start your app locally with:
+```bash
+bun run build
+```
 
-`pwa start`
+## Watch and serve during development
 
-And that's it! Good luck on your Progressive Web App adventure!
+```bash
+bun run watch
+```
 
-## More Info
+## Run the current test command
 
-We are still working on more complete guidance for the basic template. If you want a more guided experience with full documentation, check out the original [PWA Starter template](https://github.com/pwa-builder/pwa-starter).
+```bash
+bun run test
+```
+
+## Clean generated ReScript output
+
+```bash
+bun run res:clean
+```
+
+## Current implementation status
+
+The current checkout contains a minimal HTML shell, web app manifest, browser
+service-worker registration, offline application-shell worker, and Bun build
+and development-server wiring. Automated behavioral tests are not configured;
+the current test command exercises the build path only.
