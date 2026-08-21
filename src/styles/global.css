@@ -1,34 +1,136 @@
-
 /*
-  This file is used for all of your global styles and CSS variables.
-  Check here https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties for more info on using CSS variables.
-*/
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2026 Andrew Velez
+ * Description: Defines the shared presentation for the Link-Up PWA.
+ */
+
 :root {
-  --font-family: sans-serif;
+  color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+  background: #f5f7fa;
+  color: #172033;
+  --accent: #376fd0;
+  --accent-hover: #285bb2;
+  --header: #172033;
+  --surface: #ffffff;
 }
 
-html, body {
-  font-family: var(--font-family);
-  padding: 0;
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
   margin: 0;
 }
 
+a {
+  color: var(--accent);
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem max(1rem, env(safe-area-inset-right))
+    1rem max(1rem, env(safe-area-inset-left));
+  background: var(--header);
+  color: #ffffff;
+}
+
+.app-header a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+nav {
+  display: flex;
+  gap: 1rem;
+}
+
+nav a[aria-current="page"] {
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+}
+
+#app {
+  width: min(60rem, 100%);
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  outline: none;
+}
+
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.card {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  background: var(--surface);
+  box-shadow: 0 0.25rem 1rem rgb(23 32 51 / 10%);
+}
+
+.card > :first-child {
+  margin-top: 0;
+}
+
+.card > :last-child {
+  margin-bottom: 0;
+}
+
+button {
+  border: 0;
+  border-radius: 0.4rem;
+  padding: 0.7rem 1rem;
+  background: var(--accent);
+  color: #ffffff;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--accent-hover);
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 0.2rem solid #e1477e;
+  outline-offset: 0.2rem;
+}
+
+[hidden] {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .page {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (prefers-color-scheme: dark) {
+  :root {
+    background: #10141d;
+    color: #f5f7fa;
+    --accent: #8db4ff;
+    --accent-hover: #6d9cf4;
+    --header: #080b11;
+    --surface: #1b2230;
+  }
 
-  html,
-  body {
-    background-color: #181818;
-    color: white;
+  button {
+    color: #10141d;
   }
 }
-
-@media (prefers-color-scheme: light) {
-
-  html,
-  body {
-    background-color: white;
-    color: black;
-  }
-}
-
-

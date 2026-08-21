@@ -1,37 +1,16 @@
 {
   "name": "mlink",
   "version": "0.0.1",
-  "description": "A starter kit for building PWAs!",
-  "main": "index.js",
+  "description": "A local-first Progressive Web App.",
+  "type": "module",
   "scripts": {
-    "dev-server": "vite --open",
-    "dev": "npm run dev-server",
-    "dev-task": "vite",
-    "deploy": " npx @azure/static-web-apps-cli login --no-use-keychain && npx @azure/static-web-apps-cli deploy",
-    "build": "tsc && vite build",
-    "start": "npm run dev",
-    "start-remote": "vite --host"
+    "build": "bun run build.js",
+    "test": "bun run build"
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@vaadin/router": "^1.7.4",
-    "lit": "^2.3.1"
-  },
   "devDependencies": {
-    "typescript": "^4.6.3",
-    "vite": "^2.9.0",
     "@types/bun": "latest"
-  },
-  "prettier": {
-    "tabWidth": 2,
-    "useTabs": false,
-    "semi": true,
-    "singleQuote": true,
-    "quoteProps": "consistent",
-    "trailingComma": "es5",
-    "endOfLine": "crlf",
-    "bracketSpacing": true
   },
   "private": true
 }

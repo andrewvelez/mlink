@@ -11,24 +11,21 @@
 
 ## Architecture
 
-- Link-Up is a local-first Progressive Web App (PWA) built with Bun and ReScript.
-- ReScript source lives in `src/` and compiles to colocated `.res.mjs` ES modules.
+- Link-Up is a local-first Progressive Web App (PWA) written in vanilla JavaScript.
 - Keep the browser UI web-native, using HTML, CSS, the DOM, and standard Web and PWA APIs without a frontend framework.
-- Bun is the package manager and task runner.  Being a PWA, the browser is the runtime.
+- The browser is the application runtime. Bun installs dependencies, runs project tasks, and bundles the application; it is not the application runtime.
 
 ## Build Commands
 
 - Install dependencies: `bun install`
 - Build the project: `bun run build`
-- Watch and serve during development: `bun run watch`
 - Run the test command (currently build-only): `bun run test`
-- Clean generated output: `bun run clean`
 
 ## Coding Style
 
-- Use idiomatic ReScript for application source; do not introduce a frontend framework without an explicit design decision.
-- Treat `.res.mjs` files as generated compiler output; edit the corresponding `.res` source instead.
-- Use standard Web and PWA APIs for browser capabilities and idiomatic Bun APIs for Bun-specific code.
+- Use idiomatic vanilla JavaScript for application source; do not introduce TypeScript, ReScript, or a frontend framework without an explicit design decision.
+- Treat `dist/` as generated output; edit the corresponding source under `src/` instead.
+- Use standard Web and PWA APIs for browser capabilities and idiomatic Bun APIs for build tooling.
 - Prefer more idiomatic and smaller changesets.
 - Every new source file that supports comments should contain a valid header comment with the MIT license tag, author name/year, and description.
 - Regular code shouldn't be modified solely for tests unless there is a benefit for the regular code as well.

@@ -1,8 +1,8 @@
 # Link-Up
 
-Link-Up is a local-first Progressive Web App (PWA) built with Bun and
-ReScript. ReScript source lives in `src/` and compiles to colocated `.res.mjs`
-ES modules.
+Link-Up is a local-first Progressive Web App (PWA) written in vanilla
+JavaScript. The browser is the application runtime; Bun installs dependencies,
+runs project tasks, and bundles the application.
 
 ## Prerequisites
 
@@ -20,27 +20,16 @@ bun install
 bun run build
 ```
 
-## Watch and serve during development
-
-```bash
-bun run watch
-```
-
 ## Run the current test command
 
 ```bash
 bun run test
 ```
 
-## Clean generated ReScript output
-
-```bash
-bun run res:clean
-```
-
 ## Current implementation status
 
 The current checkout contains a minimal HTML shell, web app manifest, browser
 service-worker registration, offline application-shell worker, and Bun build
-and development-server wiring. Automated behavioral tests are not configured;
-the current test command exercises the build path only.
+pipeline. Build output is generated in `dist/`. Automated behavioral tests are
+not configured; the current test command exercises the build path only.
+Production deployment remains unresolved.

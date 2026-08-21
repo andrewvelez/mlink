@@ -1,32 +1,91 @@
-// Vanilla JS Service Worker, see https://docs.pwabuilder.com/#/home/sw-intro for info on service worker basics.
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Andrew Velez
+// Description: Caches the Link-Up application shell for offline use.
 
-const NETWORK_TIMEOUT_MS = 500
-const RUNTIME = 'pwa-starter'
+const cachePrefix = "mlink-shell-";
+const cacheName = cachePrefix + "__CACHE_VERSION__";
+const scopeUrl = new URL("./", self.location.href);
+const offlineDocumentUrl = new URL("./index.html", scopeUrl).href;
+const applicationShell = [
+  "./",
+  "./index.html",
+  "./app.js",
+  "./styles/global.css",
+  "./manifest.json",
+  "./assets/icons/192x192.png",
+  "./assets/icons/icon_512.png",
+].map((path) => new URL(path, scopeUrl).href);
+const applicationShellUrls = new Set(applicationShell);
 
-// See claiming clients during activate documentation here: https://docs.pwabuilder.com/#/home/sw-intro?id=claiming-clients-during-the-activate-event
-self.addEventListener('activate', event => {
-    event.waitUntil(self.clients.claim())
-})
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches
+      .open(cacheName)
+      .then((cache) => cache.addAll(applicationShell))
+      .then(() => self.skipWaiting()),
+  );
+});
 
-self.addEventListener('fetch', event => {
-    const cached = caches.match(event.request)
-    const fetched = fetch(event.request, { cache: 'no-store' })
-    const fetchedCopy = fetched.then(resp => resp.clone())
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches
+      .keys()
+      .then((cacheNames) =>
+        Promise.all(
+          cacheNames
+            .filter(
+              (existingCache) =>
+                existingCache.startsWith(cachePrefix) &&
+                existingCache !== cacheName,
+            )
+            .map((existingCache) => caches.delete(existingCache)),
+        ),
+      )
+      .then(() => self.clients.claim()),
+  );
+});
 
-    const delayCacheResponse = new Promise((resolve) => {
-        setTimeout(resolve, NETWORK_TIMEOUT_MS, cached);
-    })
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  const requestUrl = new URL(request.url);
+  const isNavigation = request.mode === "navigate";
 
-    event.respondWith(
-    Promise.race([fetched.catch(_ => cached), delayCacheResponse])
-        .then(resp => resp || fetched)
-        .catch(_ => { /* eat any errors */ })
-    )
+  if (
+    request.method !== "GET" ||
+    requestUrl.origin !== self.location.origin ||
+    (!isNavigation && !applicationShellUrls.has(requestUrl.href))
+  ) {
+    return;
+  }
 
-    // Update the cache with the version we fetched (only for ok status)
-    event.waitUntil(
-    Promise.all([fetchedCopy, caches.open(RUNTIME)])
-        .then(([response, cache]) => response.ok && cache.put(event.request, response))
-        .catch(_ => { /* eat any errors */ })
-    )
-})
+  event.respondWith(
+    caches.open(cacheName).then(async (cache) => {
+      try {
+        const response = await fetch(request);
+        const cacheControl = response.headers.get("Cache-Control") || "";
+
+        if (response.ok && !cacheControl.includes("no-store")) {
+          await cache.put(request, response.clone());
+        }
+
+        return response;
+      } catch {
+        const cachedResponse = await cache.match(request);
+
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        if (isNavigation) {
+          return (
+            (await cache.match(scopeUrl.href)) ||
+            (await cache.match(offlineDocumentUrl)) ||
+            Response.error()
+          );
+        }
+
+        return Response.error();
+      }
+    }),
+  );
+});

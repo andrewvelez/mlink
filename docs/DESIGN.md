@@ -4,28 +4,28 @@
 
 The smallest and most simple decision in architecture is typically the right one.
 
-For the Link-Up application, HTML, CSS, ReScript, and standard browser APIs are
+For the Link-Up application, HTML, CSS, JavaScript, and standard browser APIs are
 "good enough". "Good enough" still means correct. In some domains it may mean
 feature complete (think NASA), or safety-feature complete (think a bank).
-Link-Up uses a small, framework-free PWA built with Bun and ReScript.
+Link-Up uses a small, framework-free PWA written in vanilla JavaScript and
+bundled with Bun.
 
 ### Application Runtime
 
-Link-Up is a mobile-first Progressive Web App (PWA) built with Bun and ReScript
+Link-Up is a mobile-first Progressive Web App (PWA) written in vanilla JavaScript
 using the hard local-first model described below. It runs in supported browsers
 and as an installed PWA. Authoritative user data and essential application logic
 remain on the user's device. Peer-to-peer networking is a means of exchanging
 data, but data sovereignty — not eliminating every server — is the architectural
 goal.
 
-ReScript source lives under `src/` and is configured to compile to colocated
-`.res.mjs` ES modules. The browser UI uses HTML, CSS, the DOM, and standard Web
-and PWA APIs without a frontend framework. Bun is the project JavaScript
-runtime, package manager, and task runner.
+Application source lives under `src/`. The browser UI uses HTML, CSS, the DOM,
+and standard Web and PWA APIs without a frontend framework. The browser is the
+application runtime. Bun installs dependencies, runs project tasks, and bundles
+the application; it is not the application runtime.
 
-A minimal PWA shell, web app manifest, registered service worker, production
-asset pipeline, and local development server are configured. Production
-deployment remains unresolved.
+A minimal PWA shell, web app manifest, registered service worker, and production
+asset pipeline are configured. Production deployment remains unresolved.
 
 #### Local-First
 
@@ -64,9 +64,11 @@ decided.
 
 The current proof of concept contains a minimal HTML application shell, web app
 manifest, browser registration entry point, application-shell service worker,
-and Bun/ReScript build and local development-server wiring.
+and Bun build pipeline.
 
-Browser installability and service-worker behavior have not yet been validated.
+Service-worker registration, scope control, application-shell caching, and
+offline reload have been validated in Chromium. Browser installability has not
+yet been validated.
 
 Link-Up's product workflows, local persistence, peer discovery, signalling,
 relaying, peer transport, cryptographic identity, encryption, notifications,
@@ -74,14 +76,14 @@ and offline delivery are also not implemented or validated.
 
 ### PWA User Interface
 
-The web platform is Link-Up's user-interface runtime. ReScript compiles to
-JavaScript modules, HTML and CSS provide presentation, and supported browser
+The web platform is Link-Up's user-interface runtime. Vanilla JavaScript provides
+application behavior, HTML and CSS provide presentation, and supported browser
 APIs provide local storage, networking, installation, and notification
 capabilities as those parts of the design are implemented.
 
 ```text
 Link-Up PWA
-├── ReScript source → JavaScript ES modules
+├── vanilla JavaScript application behavior
 ├── HTML and CSS user interface
 └── browser APIs → local persistence and networking
 ```
@@ -93,21 +95,19 @@ Link-Up PWA
 ├── build.js
 ├── bun.lock
 ├── package.json
-├── rescript.json
 └── src/
-    ├── RegisterServiceWorker.res
-    ├── ServiceWorker.res
-    ├── ServiceWorkerWebApi.res
+    ├── app.js
+    ├── assets/
     ├── index.html
-    └── manifest.webmanifest
+    ├── manifest.json
+    ├── styles/
+    │   └── global.css
+    └── sw.js
 ```
 
-`rescript.json` configures ReScript to emit `.res.mjs` intermediate modules
-beside their source files. `build.js` bundles the browser registration and
-service-worker entry points as `dist/RegisterServiceWorker.js` and
-`dist/ServiceWorker.js`, copies the static shell assets, and generates the
-precache asset list and cache version. The generated `dist/` directory is
-served locally by `bun run watch`.
+`build.js` uses Bun to bundle `src/app.js` and `src/sw.js`, copy the static shell
+assets, and generate the application in `dist/`. The generated `dist/`
+directory is build output and is not edited directly.
 
 ## Local Authority
 

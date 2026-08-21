@@ -1,12 +1,12 @@
 {
-  "id": "/",
-  "scope": "/",
-  "name": "mlink",
+  "id": "./",
+  "scope": "./",
+  "name": "Link-Up",
   "display": "standalone",
-  "start_url": "/",
-  "short_name": "starter",
+  "start_url": "./",
+  "short_name": "Link-Up",
   "theme_color": "#E1477E",
-  "description": "This is a mlink app",
+  "description": "A local-first Progressive Web App.",
   "orientation": "any",
   "background_color": "#E1477E",
   "related_applications": [],
@@ -14,7 +14,7 @@
   "display_override": ["window-controls-overlay"],
   "icons": [
     {
-      "src": "assets/icons/512x512.png",
+      "src": "assets/icons/icon_512.png",
       "sizes": "512x512",
       "type": "image/png"
     },
@@ -54,7 +54,7 @@
       "name": "Open About",
       "short_name": "About",
       "description": "Open the about page",
-      "url": "/about",
+      "url": "./#about",
       "icons": [{ "src": "assets/icons/192x192.png", "sizes": "192x192" }]
     }
   ]

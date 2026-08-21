@@ -1,0 +1,41 @@
+<!--
+  SPDX-License-Identifier: MIT
+  Copyright (c) 2026 Andrew Velez
+  Description: Provides the browser shell for the Link-Up PWA.
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta
+      name="viewport"
+      content="viewport-fit=cover, width=device-width, initial-scale=1"
+    >
+    <meta
+      name="description"
+      content="Link-Up is a local-first Progressive Web App."
+    >
+    <meta name="theme-color" content="#181818">
+
+    <title>Link-Up</title>
+
+    <link rel="icon" href="./assets/icons/icon_24.png" type="image/png">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./styles/global.css">
+    <script type="module" src="./app.js"></script>
+  </head>
+
+  <body>
+    <header class="app-header">
+      <a class="brand" href="#home">Link-Up</a>
+      <nav aria-label="Primary navigation">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+      </nav>
+    </header>
+
+    <main id="app" tabindex="-1"></main>
+
+    <noscript>Link-Up requires JavaScript.</noscript>
+  </body>
+</html>
