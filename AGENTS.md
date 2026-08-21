@@ -18,8 +18,7 @@
 ## Build Commands
 
 - Install dependencies: `bun install`
-- Build the project: `bun run build`
-- Run the test command (currently build-only): `bun run test`
+- Build scripts are: clean, build, test, start
 
 ## Coding Style
 

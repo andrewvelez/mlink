@@ -1,14 +1,15 @@
 {
   "name": "mlink",
-  "version": "0.0.1",
   "description": "A local-first Progressive Web App.",
   "type": "module",
   "scripts": {
-    "build": "bun run build.js",
-    "test": "bun run build"
+    "clean": "bun run --bun ./build.js clean",
+    "build": "bun run --bun ./build.js build",
+    "test": "bun run --bun ./build.js test",
+    "start": "bun run --bun ./build.js start"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Andrew Velez 2026",
+  "license": "MIT",
   "devDependencies": {
     "@types/bun": "latest"
   },

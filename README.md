@@ -6,7 +6,7 @@ runs project tasks, and bundles the application.
 
 ## Prerequisites
 
-- Install Bun.
+- Bun.js, htmx
 
 ## Install dependencies
 
@@ -14,16 +14,13 @@ runs project tasks, and bundles the application.
 bun install
 ```
 
-## Build the project
+## Bun.js build scripts
 
 ```bash
+bun run clean
 bun run build
-```
-
-## Run the current test command
-
-```bash
 bun run test
+bun run start
 ```
 
 ## Current implementation status

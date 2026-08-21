@@ -1,6 +1,9 @@
-// SPDX-License-Identifier: MIT
-// Copyright (c) 2026 Andrew Velez
-// Description: Builds the browser application and prepares its static PWA shell.
+#! /usr/bin/env bun
+/**
+ * @license SPDX-License-Identifier: MIT
+ * @author Andrew Velez 2026
+ * @desc Builds and serves Link-Up's browser PWA assets with Bun.
+ */
 
 import { cp, mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
@@ -48,21 +51,17 @@ await Promise.all([
   }),
 ]);
 
-const shellFiles = [
-  "index.html",
-  "app.js",
-  "styles/global.css",
-  "manifest.json",
-  "assets/icons/192x192.png",
-  "assets/icons/icon_512.png",
-];
-const hasher = new Bun.CryptoHasher("sha256");
-
-for (const file of shellFiles) {
-  hasher.update(await Bun.file(join(outputDirectory, file)).arrayBuffer());
-}
-
-const cacheVersion = hasher.digest("hex").slice(0, 12);
+const buildTime = new Date();
+const appVersion = [
+  buildTime.getUTCFullYear(),
+  buildTime.getUTCMonth() + 1,
+  buildTime.getUTCDate(),
+].join(".");
+const buildNumber = buildTime
+  .toISOString()
+  .slice(11, 23)
+  .replace(/[:.]/g, "");
+const cacheVersion = `${appVersion}-b${buildNumber}`;
 const serviceWorkerPath = join(outputDirectory, "sw.js");
 const serviceWorker = await Bun.file(serviceWorkerPath).text();
 
@@ -75,4 +74,4 @@ await Bun.write(
   serviceWorker.replace("__CACHE_VERSION__", cacheVersion),
 );
 
-console.log("Built the PWA in dist/.");
+console.log(`Built the PWA in dist/ (${cacheVersion}).`);
