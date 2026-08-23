@@ -34,13 +34,6 @@
       "type": "image/png"
     }
   ],
-  "screenshots": [
-    {
-      "src": "assets/screenshots/screen.png",
-      "sizes": "1617x1012",
-      "type": "image/png"
-    }
-  ],
   "features": [
     "Cross Platform",
     "fast",
