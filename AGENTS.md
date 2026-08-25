@@ -6,10 +6,33 @@
 - The browser is the application runtime. In being local-first, every effort is made for the app to be 100% cached on the first page load.
 - The current design direction for the project is in `docs/DESIGN.md`. All other docs may be out of date.
 
-## Build Commands
+## Commands
 
-- Install dependencies: `bun install`
-- Build scripts are: clean, build, test, start
+Install dependencies
+```
+bun install
+```
+
+Remove project build artifacts
+```
+bun run --bun ./build.js clean
+```
+
+Bundle project for production deployment
+```
+bun run --bun ./build.js build
+```
+
+Build project and run test suite
+```
+bun run --bun ./build.js test
+```
+
+Build project and start local dev server
+```
+bun run --bun ./build.js start
+```
+
 
 ## Coding Requirements
 
