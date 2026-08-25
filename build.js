@@ -5,10 +5,11 @@
  * @desc Builds and serves Link-Up's browser PWA assets with Bun.
  */
 
-import { copyFileSync, cpSync, mkdirSync, rmSync } from "node:fs";
+import { copyFileSync, cpSync, rmSync } from "node:fs";
 import { join, resolve, sep } from "node:path";
 
 const sourceDirectory = join(import.meta.dir, "src");
+const staticDirectory = join(import.meta.dir, "static");
 const outputDirectory = join(import.meta.dir, "dist");
 
 function clean() {
@@ -27,8 +28,9 @@ async function bundle() {
   });
 
   if (!bundledBuild.success) {
-    for (const log of bundledBuild.logs) {
-      console.error(log);
+    let logMsg;
+    for (logMsg of bundledBuild.logs) {
+      console.error(logMsg);
     }
 
     throw new Error("Bun build failed.");
@@ -36,8 +38,6 @@ async function bundle() {
 }
 
 function copyAssets() {
-  mkdirSync(join(outputDirectory, "styles"), { recursive: true });
-
   copyFileSync(
     join(sourceDirectory, "index.html"),
     join(outputDirectory, "index.html"),
@@ -48,12 +48,7 @@ function copyAssets() {
     join(outputDirectory, "manifest.json"),
   );
 
-  copyFileSync(
-    join(sourceDirectory, "styles", "global.css"),
-    join(outputDirectory, "styles", "global.css"),
-  );
-
-  cpSync(join(sourceDirectory, "assets"), join(outputDirectory, "assets"), {
+  cpSync(staticDirectory, join(outputDirectory, "static"), {
     recursive: true,
   });
 }

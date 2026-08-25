@@ -13,9 +13,9 @@
 
     <title>Link-Up</title>
 
-    <link rel="icon" href="./assets/icons/icon_24.png" type="image/png">
+    <link rel="icon" href="./static/icons/icon_24.png" type="image/png">
     <link rel="manifest" href="./manifest.json">
-    <link rel="stylesheet" href="./styles/global.css">
+    <link rel="stylesheet" href="./static/styles/global.css">
     <script type="module" src="./app.js"></script>
   </head>
 
@@ -28,7 +28,41 @@
       </nav>
     </header>
 
-    <main id="app" tabindex="-1"></main>
+    <main id="app" tabindex="-1">
+      <section id="home" class="page" aria-labelledby="welcome-heading">
+        <div class="card">
+          <h1 id="welcome-heading">Welcome to Link-Up</h1>
+          <p>
+            Link-Up is a local-first Progressive Web App built with vanilla
+            JavaScript and standard browser APIs.
+          </p>
+          <button id="share-button" type="button" hidden>Share Link-Up</button>
+        </div>
+        <div class="card">
+          <h2>Technology</h2>
+          <ul>
+            <li>HTML and CSS</li>
+            <li>Vanilla JavaScript</li>
+            <li>Progressive Web App APIs</li>
+            <li>Bun bundling</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="about" class="page" aria-labelledby="about-heading" hidden>
+        <div class="card">
+          <h1 id="about-heading">About Link-Up</h1>
+          <p>
+            Link-Up keeps authoritative user data and essential application
+            logic on the user&rsquo;s device.
+          </p>
+          <p>
+            Product workflows, persistence, and peer networking remain open
+            design work.
+          </p>
+        </div>
+      </section>
+    </main>
 
     <noscript>Link-Up requires JavaScript.</noscript>
   </body>

@@ -6,7 +6,7 @@ runs project tasks, and bundles the application.
 
 ## Prerequisites
 
-- Bun.js, htmx
+- Bun.js
 
 ## Install dependencies
 
@@ -29,4 +29,4 @@ The current checkout contains a minimal HTML shell, web app manifest, browser
 service-worker registration, offline application-shell worker, and Bun build
 pipeline. Build output is generated in `dist/`. Automated behavioral tests are
 not configured; the current test command exercises the build path only.
-Production deployment remains unresolved.
+Production deployment and executable packaging remain unresolved.

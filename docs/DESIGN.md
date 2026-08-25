@@ -19,13 +19,16 @@ remain on the user's device. Peer-to-peer networking is a means of exchanging
 data, but data sovereignty — not eliminating every server — is the architectural
 goal.
 
-Application source lives under `src/`. The browser UI uses HTML, CSS, the DOM,
-and standard Web and PWA APIs without a frontend framework. The browser is the
+Application code and shell documents live under `src/`, while directly copied
+browser assets live under `static/`. The browser UI uses HTML, CSS, the DOM, and
+standard Web and PWA APIs without a frontend framework. The browser is the
 application runtime. Bun installs dependencies, runs project tasks, and bundles
 the application; it is not the application runtime.
 
 A minimal PWA shell, web app manifest, registered service worker, and production
-asset pipeline are configured. Production deployment remains unresolved.
+asset pipeline are configured. The complete browser build is emitted under
+`dist/`. Production deployment and any future full-stack executable packaging
+remain unresolved.
 
 #### Local-First
 
@@ -94,20 +97,23 @@ Link-Up PWA
 .
 ├── build.js
 ├── bun.lock
+├── jsconfig.json
 ├── package.json
-└── src/
-    ├── app.js
-    ├── assets/
-    ├── index.html
-    ├── manifest.json
-    ├── styles/
-    │   └── global.css
-    └── sw.js
+├── src/
+│   ├── app.js
+│   ├── index.html
+│   ├── manifest.json
+│   └── sw.js
+└── static/
+    ├── icons/
+    └── styles/
+        └── global.css
 ```
 
-`build.js` uses Bun to bundle `src/app.js` and `src/sw.js`, copy the static shell
-assets, and generate the application in `dist/`. The generated `dist/`
-directory is build output and is not edited directly.
+`build.js` uses Bun to bundle `src/app.js` and `src/sw.js`, copy the shell
+documents, and copy `static/` to `dist/static/`. The complete current browser
+application is generated under `dist/`; that directory is build output and is
+not edited directly.
 
 ## Local Authority
 

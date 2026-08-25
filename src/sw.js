@@ -1,8 +1,7 @@
 /**
- * The service worker responsible for client-side caching of the PWA.
  * @author Andrew Velez 2026
  * @license SPDX-License-Identifier: MIT
- * @desc Caches the Link-Up application shell for offline use
+ * @desc The service worker responsible for client-side caching of the PWA.
  */
 
 const cachePrefix = "mlink-";
