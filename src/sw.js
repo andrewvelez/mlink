@@ -52,35 +52,42 @@ function shouldHandleRequest(request) {
   );
 }
 
-async function respondNetworkFirst(request) {
-  const isNavigation = request.mode === "navigate";
-  const cache = await caches.open(cacheName);
-
+async function cacheNetworkResponse(request, response) {
   try {
-    const response = await fetch(request);
     const cacheControl = response.headers.get("Cache-Control") || "";
 
-    if (response.ok && !cacheControl.includes("no-store")) {
-      await cache.put(request, response.clone());
+    if (!response.ok || cacheControl.includes("no-store")) {
+      return;
     }
 
+    const cache = await caches.open(cacheName);
+    await cache.put(request, response.clone());
+  } catch {
+    // Cache failures must not replace a successful network response.
+  }
+}
+
+async function getCachedResponse(request) {
+  const cache = await caches.open(cacheName);
+  const cachedResponse = await cache.match(request);
+
+  if (cachedResponse || request.mode !== "navigate") {
+    return cachedResponse;
+  }
+
+  return (
+    (await cache.match(scopeUrl.href)) ||
+    (await cache.match(offlineDocumentUrl))
+  );
+}
+
+async function respondNetworkFirst(request) {
+  try {
+    const response = await fetch(request);
+    await cacheNetworkResponse(request, response);
     return response;
   } catch {
-    const cachedResponse = await cache.match(request);
-
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-
-    if (isNavigation) {
-      return (
-        (await cache.match(scopeUrl.href)) ||
-        (await cache.match(offlineDocumentUrl)) ||
-        Response.error()
-      );
-    }
-
-    return Response.error();
+    return (await getCachedResponse(request)) || Response.error();
   }
 }
 

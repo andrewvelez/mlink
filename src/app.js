@@ -9,10 +9,6 @@ const navigationLinks = document.querySelectorAll("nav a");
 const pageSections = document.querySelectorAll("#app > .page");
 const shareButton = document.querySelector("#share-button");
 
-if (!app) {
-  throw new Error("The application root is missing.");
-}
-
 function currentPage() {
   return window.location.hash === "#about" ? "about" : "home";
 }
@@ -62,14 +58,22 @@ async function registerServiceWorker() {
   }
 }
 
-if (shareButton && typeof navigator.share === "function") {
-  shareButton.hidden = false;
-  shareButton.addEventListener("click", shareLinkUp);
+function addAppListeners() {
+  if (!app) {
+    throw new Error("The application root is missing.");
+  }
+
+  if (shareButton && typeof navigator.share === "function") {
+    shareButton.hidden = false;
+    shareButton.addEventListener("click", shareLinkUp);
+  }
+
+  window.addEventListener("hashchange", render);
+  render();
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", registerServiceWorker, { once: true });
+  }
 }
 
-window.addEventListener("hashchange", render);
-render();
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", registerServiceWorker, { once: true });
-}
+addAppListeners();
