@@ -1,0 +1,1821 @@
+<!doctype html>
+<html lang="en" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Workbox Cheatsheet</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
+</head>
+<body>
+<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Workbox Cheatsheet" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot; data-visualize-standalone&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;Workbox Cheatsheet&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 14px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, &quot;Segoe UI&quot;, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --icon-size: 16px;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --corner-shape: round;
+  --radius: var(--border-radius-lg, 10px);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: var(--visualize-paint-gutter, 0px);
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+:root:not([data-app-block-surface], [data-visualize-standalone]) &gt; body {
+  padding: 12px;
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium, 500);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive &gt; .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align=&quot;right&quot;]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align=&quot;center&quot;]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget &gt; :not(.card, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The shared runtime owns data-tooltip; suppress AppBlock&#x27;s pseudo-tooltip. */
+main [data-tooltip]::after {
+  content: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  margin-block: 6px;
+  border: 0;
+  background: var(--border);
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress {
+  display: flex;
+  height: 8px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 8px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar:only-child {
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.nav-link,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn,
+.nav-link {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover,
+.nav-link:not(:disabled):not([aria-disabled=&quot;true&quot;]):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.nav-pills .nav-link {
+  min-width: 0;
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.nav-justified .nav-link {
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.nav-pills .nav-link.active {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+.btn:disabled,
+.nav-link:disabled,
+.nav-link[aria-disabled=&quot;true&quot;] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: var(--corner-shape);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed=&quot;true&quot;],
+  [aria-selected=&quot;true&quot;],
+  .is-selected
+) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep small-screen WebKit from zooming when a text field receives focus. */
+  .form-control,
+  .form-select {
+    font-size: max(16px, var(--font-size-normal));
+  }
+
+  .form-control[type=&quot;file&quot;]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type=&quot;color&quot;] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type=&quot;date&quot;],
+    [type=&quot;datetime-local&quot;],
+    [type=&quot;month&quot;],
+    [type=&quot;time&quot;],
+    [type=&quot;week&quot;]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: &quot;&quot;;
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+
+  .form-range::-webkit-slider-runnable-track {
+    height: 44px;
+  }
+
+  .form-range::-moz-range-track {
+    height: 44px;
+  }
+
+  .form-range::-webkit-slider-thumb {
+    margin-top: 12px;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;workbox-api-map&quot;&gt;
+  &lt;style&gt;
+    #workbox-api-map { color: var(--foreground); font-size: var(--font-size-base); width: 100%; }
+    #workbox-api-map * { box-sizing: border-box; }
+    #workbox-api-map h1 { margin: 0 0 .35rem; }
+    #workbox-api-map h2 { margin: 1rem 0 .6rem; }
+    #workbox-api-map h3 { margin: 0 0 .25rem; }
+    #workbox-api-map p { margin: .25rem 0; }
+    #workbox-api-map pre {
+      margin: .5rem 0 0;
+      padding: .75rem;
+      overflow-x: auto;
+      background: var(--muted);
+      color: var(--foreground);
+    }
+    #workbox-api-map .wb-subtitle { color: var(--muted-foreground); margin-bottom: 1rem; }
+    #workbox-api-map .wb-tabs { margin-bottom: 1rem; }
+    #workbox-api-map .wb-key { display: flex; flex-wrap: wrap; gap: .65rem 1rem; margin: .7rem 0; color: var(--muted-foreground); }
+    #workbox-api-map .wb-key span { display: inline-flex; align-items: center; gap: .35rem; }
+    #workbox-api-map .wb-swatch { width: .7rem; height: .7rem; display: inline-block; }
+    #workbox-api-map .wb-swatch.build { background: var(--viz-series-1); }
+    #workbox-api-map .wb-swatch.window { background: var(--viz-series-2); }
+    #workbox-api-map .wb-swatch.worker { background: var(--viz-series-3); }
+    #workbox-api-map .wb-lane {
+      display: grid;
+      grid-template-columns: 8.5rem minmax(0, 1fr);
+      gap: 1rem;
+      align-items: start;
+      padding: .9rem 0;
+      border-top: 1px solid var(--border);
+    }
+    #workbox-api-map .wb-lane:last-of-type { border-bottom: 1px solid var(--border); }
+    #workbox-api-map .wb-lane-label { padding-top: .65rem; }
+    #workbox-api-map .wb-context { color: var(--muted-foreground); }
+    #workbox-api-map .wb-flow {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: .5rem;
+      align-items: stretch;
+    }
+    #workbox-api-map .wb-flow.wb-four {
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+    }
+    #workbox-api-map .wb-step {
+      min-width: 0;
+      padding: .7rem .75rem;
+      border-left: 3px solid var(--viz-series-1);
+      background: color-mix(in srgb, var(--viz-series-1) 9%, transparent);
+    }
+    #workbox-api-map .wb-step.window {
+      border-left-color: var(--viz-series-2);
+      background: color-mix(in srgb, var(--viz-series-2) 9%, transparent);
+    }
+    #workbox-api-map .wb-step.worker {
+      border-left-color: var(--viz-series-3);
+      background: color-mix(in srgb, var(--viz-series-3) 9%, transparent);
+    }
+    #workbox-api-map .wb-arrow { align-self: center; color: var(--muted-foreground); display: flex; justify-content: center; }
+    #workbox-api-map .wb-arrow svg { width: 18px; height: 18px; }
+    #workbox-api-map .wb-note { margin: .8rem 0 0; padding-left: .75rem; border-left: 3px solid var(--destructive); }
+    #workbox-api-map .wb-groups {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: .9rem;
+    }
+    #workbox-api-map .wb-group { padding-top: .7rem; border-top: 3px solid var(--viz-series-3); }
+    #workbox-api-map .wb-group.build { border-top-color: var(--viz-series-1); }
+    #workbox-api-map .wb-group.window { border-top-color: var(--viz-series-2); }
+    #workbox-api-map .wb-group ul { margin: .4rem 0 0; padding-left: 1.25rem; }
+    #workbox-api-map .wb-group li { margin: .25rem 0; }
+    #workbox-api-map .wb-tools {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: .8rem;
+      margin-top: .8rem;
+    }
+    #workbox-api-map .wb-tool { padding-top: .65rem; border-top: 3px solid var(--viz-series-1); }
+    #workbox-api-map .wb-code-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    #workbox-api-map .wb-code-block { min-width: 0; }
+    #workbox-api-map .wb-sources {
+      margin-top: 1.25rem;
+      padding-top: .75rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted-foreground);
+    }
+    #workbox-api-map .wb-sources a { color: var(--foreground); }
+    @media (max-width: 620px) {
+      #workbox-api-map .wb-lane { grid-template-columns: 1fr; gap: .4rem; }
+      #workbox-api-map .wb-lane-label { padding-top: 0; }
+      #workbox-api-map .wb-flow,
+      #workbox-api-map .wb-flow.wb-four { grid-template-columns: 1fr; }
+      #workbox-api-map .wb-arrow { transform: rotate(90deg); }
+      #workbox-api-map .wb-groups,
+      #workbox-api-map .wb-tools,
+      #workbox-api-map .wb-code-grid { grid-template-columns: 1fr; }
+    }
+  &lt;/style&gt;
+
+  &lt;h1&gt;Workbox Cheatsheet&lt;/h1&gt;
+  &lt;p class=&quot;wb-subtitle&quot;&gt;A five-view map of Workbox&#x27;s build-time tools, service-worker runtime modules, page-side lifecycle helper, and their place in a Vite+ / htmx application.&lt;/p&gt;
+
+  &lt;div class=&quot;nav nav-pills nav-justified wb-tabs&quot; role=&quot;tablist&quot; aria-label=&quot;Workbox explanation&quot;&gt;
+    &lt;button class=&quot;nav-link active&quot; id=&quot;wb-map-tab&quot; role=&quot;tab&quot; aria-controls=&quot;wb-map-panel&quot; aria-selected=&quot;true&quot; type=&quot;button&quot;&gt;System map&lt;/button&gt;
+    &lt;button class=&quot;nav-link&quot; id=&quot;wb-build-tab&quot; role=&quot;tab&quot; aria-controls=&quot;wb-build-panel&quot; aria-selected=&quot;false&quot; type=&quot;button&quot;&gt;Build API&lt;/button&gt;
+    &lt;button class=&quot;nav-link&quot; id=&quot;wb-runtime-tab&quot; role=&quot;tab&quot; aria-controls=&quot;wb-runtime-panel&quot; aria-selected=&quot;false&quot; type=&quot;button&quot;&gt;Worker API&lt;/button&gt;
+    &lt;button class=&quot;nav-link&quot; id=&quot;wb-window-tab&quot; role=&quot;tab&quot; aria-controls=&quot;wb-window-panel&quot; aria-selected=&quot;false&quot; type=&quot;button&quot;&gt;Window API&lt;/button&gt;
+    &lt;button class=&quot;nav-link&quot; id=&quot;wb-stack-tab&quot; role=&quot;tab&quot; aria-controls=&quot;wb-stack-panel&quot; aria-selected=&quot;false&quot; type=&quot;button&quot;&gt;Your stack&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;div id=&quot;wb-map-panel&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;wb-map-tab&quot;&gt;
+    &lt;div class=&quot;wb-key&quot; aria-label=&quot;Execution context legend&quot;&gt;
+      &lt;span&gt;&lt;i class=&quot;wb-swatch build&quot;&gt;&lt;/i&gt; Build process&lt;/span&gt;
+      &lt;span&gt;&lt;i class=&quot;wb-swatch worker&quot;&gt;&lt;/i&gt; Service worker&lt;/span&gt;
+      &lt;span&gt;&lt;i class=&quot;wb-swatch window&quot;&gt;&lt;/i&gt; Web page&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;wb-lane&quot;&gt;
+      &lt;div class=&quot;wb-lane-label&quot;&gt;&lt;h3&gt;Build time&lt;/h3&gt;&lt;span class=&quot;wb-context text-small&quot;&gt;Node.js process&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-flow&quot;&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;Built site assets&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;HTML, JS, CSS, images&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;&lt;code&gt;workbox-build&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;&lt;code&gt;generateSW&lt;/code&gt;, &lt;code&gt;injectManifest&lt;/code&gt;, &lt;code&gt;getManifest&lt;/code&gt;&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;Build output&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Usually a deployable &lt;code&gt;sw.js&lt;/code&gt;&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;wb-lane&quot;&gt;
+      &lt;div class=&quot;wb-lane-label&quot;&gt;&lt;h3&gt;Worker runtime&lt;/h3&gt;&lt;span class=&quot;wb-context text-small&quot;&gt;Separate global context&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-flow wb-four&quot;&gt;
+        &lt;div class=&quot;wb-step worker&quot;&gt;&lt;strong&gt;&lt;code&gt;sw.js&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Installed by browser&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step worker&quot;&gt;&lt;strong&gt;&lt;code&gt;workbox-routing&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Chooses a handler&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step worker&quot;&gt;&lt;strong&gt;&lt;code&gt;workbox-strategies&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Chooses cache/network behavior&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step worker&quot;&gt;&lt;strong&gt;Response&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Cache or network&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;wb-lane&quot;&gt;
+      &lt;div class=&quot;wb-lane-label&quot;&gt;&lt;h3&gt;Window runtime&lt;/h3&gt;&lt;span class=&quot;wb-context text-small&quot;&gt;Page JavaScript&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-flow&quot;&gt;
+        &lt;div class=&quot;wb-step window&quot;&gt;&lt;strong&gt;Application page&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;&lt;code&gt;app.js&lt;/code&gt;&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step window&quot;&gt;&lt;strong&gt;&lt;code&gt;workbox-window&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Optional registration/lifecycle wrapper&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step window&quot;&gt;&lt;strong&gt;Browser SW API&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Registration, events, messages&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;wb-note&quot;&gt;&lt;strong&gt;&lt;code&gt;workbox-build&lt;/code&gt; and &lt;code&gt;workbox-window&lt;/code&gt; do not perform the same work.&lt;/strong&gt; One writes deployment artifacts before the app runs; the other optionally manages registration after a page is running.&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;div id=&quot;wb-build-panel&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;wb-build-tab&quot; hidden&gt;
+    &lt;h2&gt;Three primary workflows exposed by &lt;code&gt;workbox-build&lt;/code&gt;&lt;/h2&gt;
+    &lt;div class=&quot;wb-lane&quot;&gt;
+      &lt;div class=&quot;wb-lane-label&quot;&gt;&lt;h3&gt;&lt;code&gt;generateSW()&lt;/code&gt;&lt;/h3&gt;&lt;span class=&quot;wb-context text-small&quot;&gt;Workbox authors worker&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-flow&quot;&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;Configuration + assets&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Patterns, caching rules, options&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;&lt;code&gt;generateSW()&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Generates manifest and worker logic&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;Complete &lt;code&gt;sw.js&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;You do not write top-level worker code&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;wb-lane&quot;&gt;
+      &lt;div class=&quot;wb-lane-label&quot;&gt;&lt;h3&gt;&lt;code&gt;injectManifest()&lt;/code&gt;&lt;/h3&gt;&lt;span class=&quot;wb-context text-small&quot;&gt;You author worker&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-flow&quot;&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;Your source worker + assets&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;&lt;code&gt;precacheAndRoute(self.__WB_MANIFEST)&lt;/code&gt;&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;&lt;code&gt;injectManifest()&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Scans assets and replaces only the injection point; does not bundle the source worker&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;Completed &lt;code&gt;sw.js&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Your logic + generated URL/revision array&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;wb-lane&quot;&gt;
+      &lt;div class=&quot;wb-lane-label&quot;&gt;&lt;h3&gt;&lt;code&gt;getManifest()&lt;/code&gt;&lt;/h3&gt;&lt;span class=&quot;wb-context text-small&quot;&gt;Manifest data only&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-flow&quot;&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;Assets + patterns&lt;/strong&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;&lt;code&gt;getManifest()&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Calculates entries&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;Returned array&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;No worker file is written&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;h2&gt;Separate tools exposing related build workflows&lt;/h2&gt;
+    &lt;div class=&quot;wb-tools&quot;&gt;
+      &lt;div class=&quot;wb-tool&quot;&gt;&lt;h3&gt;&lt;code&gt;workbox-build&lt;/code&gt;&lt;/h3&gt;&lt;p&gt;Node.js function API and underlying build library.&lt;/p&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-tool&quot;&gt;&lt;h3&gt;&lt;code&gt;workbox-cli&lt;/code&gt;&lt;/h3&gt;&lt;p&gt;Command-line wrapper around &lt;code&gt;workbox-build&lt;/code&gt;.&lt;/p&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-tool&quot;&gt;&lt;h3&gt;&lt;code&gt;workbox-webpack-plugin&lt;/code&gt;&lt;/h3&gt;&lt;p&gt;Webpack integration exposing &lt;code&gt;GenerateSW&lt;/code&gt; and &lt;code&gt;InjectManifest&lt;/code&gt; plugins.&lt;/p&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;text-small text-muted&quot;&gt;The &lt;code&gt;workbox-build&lt;/code&gt; reference also exposes lower-level helpers: &lt;code&gt;copyWorkboxLibraries()&lt;/code&gt; and &lt;code&gt;getModuleURL()&lt;/code&gt;.&lt;/p&gt;
+    &lt;div class=&quot;wb-code-grid&quot;&gt;
+      &lt;section class=&quot;wb-code-block&quot;&gt;
+        &lt;h3&gt;Minimal &lt;code&gt;injectManifest()&lt;/code&gt; build&lt;/h3&gt;
+        &lt;pre&gt;&lt;code&gt;import { injectManifest } from &quot;workbox-build&quot;;
+
+await injectManifest({
+  swSrc: &quot;src/service-worker.js&quot;,
+  swDest: &quot;dist/service-worker.js&quot;,
+  globDirectory: &quot;dist&quot;,
+  globPatterns: [&quot;**/*.{html,js,css,svg,png}&quot;],
+});&lt;/code&gt;&lt;/pre&gt;
+      &lt;/section&gt;
+      &lt;section class=&quot;wb-code-block&quot;&gt;
+        &lt;h3&gt;Minimal &lt;code&gt;generateSW()&lt;/code&gt; build&lt;/h3&gt;
+        &lt;pre&gt;&lt;code&gt;import { generateSW } from &quot;workbox-build&quot;;
+
+await generateSW({
+  swDest: &quot;dist/service-worker.js&quot;,
+  globDirectory: &quot;dist&quot;,
+  globPatterns: [&quot;**/*.{html,js,css,svg,png}&quot;],
+});&lt;/code&gt;&lt;/pre&gt;
+      &lt;/section&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;wb-note&quot;&gt;These are build tools. They are not interchangeable with &lt;code&gt;workbox-window&lt;/code&gt; or the packages that execute inside a service worker.&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;div id=&quot;wb-runtime-panel&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;wb-runtime-tab&quot; hidden&gt;
+    &lt;h2&gt;What executes inside &lt;code&gt;sw.js&lt;/code&gt;&lt;/h2&gt;
+    &lt;div class=&quot;wb-lane&quot;&gt;
+      &lt;div class=&quot;wb-lane-label&quot;&gt;&lt;h3&gt;Install/update&lt;/h3&gt;&lt;span class=&quot;wb-context text-small&quot;&gt;Precache lifecycle&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-flow&quot;&gt;
+        &lt;div class=&quot;wb-step worker&quot;&gt;&lt;strong&gt;Injected manifest&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;URL/revision objects&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step worker&quot;&gt;&lt;strong&gt;&lt;code&gt;precacheAndRoute()&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;&lt;code&gt;workbox-precaching&lt;/code&gt;&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step worker&quot;&gt;&lt;strong&gt;Precache&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Downloads new or changed app assets&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;wb-lane&quot;&gt;
+      &lt;div class=&quot;wb-lane-label&quot;&gt;&lt;h3&gt;Every request&lt;/h3&gt;&lt;span class=&quot;wb-context text-small&quot;&gt;Fetch lifecycle&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-flow wb-four&quot;&gt;
+        &lt;div class=&quot;wb-step worker&quot;&gt;&lt;strong&gt;&lt;code&gt;fetch&lt;/code&gt; event&lt;/strong&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step worker&quot;&gt;&lt;strong&gt;First matching route&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;&lt;code&gt;registerRoute()&lt;/code&gt;&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step worker&quot;&gt;&lt;strong&gt;Handler/strategy&lt;/strong&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step worker&quot;&gt;&lt;strong&gt;Response&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Cache, network, or custom&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;wb-groups&quot;&gt;
+      &lt;section class=&quot;wb-group&quot;&gt;
+        &lt;h3&gt;Core request modules&lt;/h3&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;code&gt;workbox-precaching&lt;/code&gt; — app files known at build time&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;workbox-routing&lt;/code&gt; — request matching and handler selection&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;workbox-strategies&lt;/code&gt; — standard cache/network policies&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;workbox-core&lt;/code&gt; — shared internals, names, lifecycle helpers&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/section&gt;
+      &lt;section class=&quot;wb-group&quot;&gt;
+        &lt;h3&gt;Strategy classes&lt;/h3&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;code&gt;CacheFirst&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;NetworkFirst&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;StaleWhileRevalidate&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;CacheOnly&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;NetworkOnly&lt;/code&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/section&gt;
+      &lt;section class=&quot;wb-group&quot;&gt;
+        &lt;h3&gt;Optional policy modules/plugins&lt;/h3&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;code&gt;workbox-expiration&lt;/code&gt; — age/count limits&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;workbox-cacheable-response&lt;/code&gt; — cache eligibility&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;workbox-background-sync&lt;/code&gt; — retry failed requests&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;workbox-broadcast-update&lt;/code&gt; — report cache updates&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;workbox-range-requests&lt;/code&gt; — partial responses&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/section&gt;
+      &lt;section class=&quot;wb-group&quot;&gt;
+        &lt;h3&gt;Convenience and special cases&lt;/h3&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;code&gt;workbox-recipes&lt;/code&gt; — assembled common patterns&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;workbox-navigation-preload&lt;/code&gt; — early navigation network work&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;workbox-sw&lt;/code&gt; — CDN loader for runtime modules&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;workbox-google-analytics&lt;/code&gt; — offline Analytics replay&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/section&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;wb-code-grid&quot;&gt;
+      &lt;section class=&quot;wb-code-block&quot;&gt;
+        &lt;h3&gt;Precache build assets&lt;/h3&gt;
+        &lt;pre&gt;&lt;code&gt;import {
+  cleanupOutdatedCaches,
+  precacheAndRoute,
+} from &quot;workbox-precaching&quot;;
+
+cleanupOutdatedCaches();
+precacheAndRoute(self.__WB_MANIFEST);&lt;/code&gt;&lt;/pre&gt;
+      &lt;/section&gt;
+      &lt;section class=&quot;wb-code-block&quot;&gt;
+        &lt;h3&gt;Runtime-cache matching requests&lt;/h3&gt;
+        &lt;pre&gt;&lt;code&gt;import { registerRoute } from &quot;workbox-routing&quot;;
+import { NetworkFirst } from &quot;workbox-strategies&quot;;
+
+registerRoute(
+  ({ request }) =&gt; request.mode === &quot;navigate&quot;,
+  new NetworkFirst({ cacheName: &quot;pages&quot; }),
+);&lt;/code&gt;&lt;/pre&gt;
+      &lt;/section&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;wb-note&quot;&gt;&lt;code&gt;injectManifest()&lt;/code&gt; never executes in the service worker. Its output does. &lt;code&gt;workbox-precaching&lt;/code&gt; consumes the injected array.&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;div id=&quot;wb-window-panel&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;wb-window-tab&quot; hidden&gt;
+    &lt;h2&gt;&lt;code&gt;workbox-window&lt;/code&gt; is optional page-side assistance&lt;/h2&gt;
+    &lt;div class=&quot;wb-lane&quot;&gt;
+      &lt;div class=&quot;wb-lane-label&quot;&gt;&lt;h3&gt;Native route&lt;/h3&gt;&lt;span class=&quot;wb-context text-small&quot;&gt;Without package&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-flow&quot;&gt;
+        &lt;div class=&quot;wb-step window&quot;&gt;&lt;strong&gt;Your page code&lt;/strong&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step window&quot;&gt;&lt;strong&gt;&lt;code&gt;navigator.serviceWorker.register(&#x27;/sw.js&#x27;)&lt;/code&gt;&lt;/strong&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step window&quot;&gt;&lt;strong&gt;Native registration&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;You handle states and messages directly&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;wb-lane&quot;&gt;
+      &lt;div class=&quot;wb-lane-label&quot;&gt;&lt;h3&gt;Workbox route&lt;/h3&gt;&lt;span class=&quot;wb-context text-small&quot;&gt;With wrapper&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-flow&quot;&gt;
+        &lt;div class=&quot;wb-step window&quot;&gt;&lt;strong&gt;&lt;code&gt;new Workbox(&#x27;/sw.js&#x27;)&lt;/code&gt;&lt;/strong&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step window&quot;&gt;&lt;strong&gt;&lt;code&gt;wb.register()&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Calls browser API and tracks relevant worker&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step window&quot;&gt;&lt;strong&gt;Lifecycle events + messaging&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;&lt;code&gt;installed&lt;/code&gt;, &lt;code&gt;waiting&lt;/code&gt;, &lt;code&gt;activated&lt;/code&gt;, &lt;code&gt;controlling&lt;/code&gt;, &lt;code&gt;messageSW()&lt;/code&gt;&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;wb-groups&quot;&gt;
+      &lt;section class=&quot;wb-group window&quot;&gt;
+        &lt;h3&gt;It does&lt;/h3&gt;
+        &lt;ul&gt;
+          &lt;li&gt;register the deployed worker&lt;/li&gt;
+          &lt;li&gt;surface lifecycle events&lt;/li&gt;
+          &lt;li&gt;help distinguish relevant registrations&lt;/li&gt;
+          &lt;li&gt;send a message and await a reply&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/section&gt;
+      &lt;section class=&quot;wb-group window&quot;&gt;
+        &lt;h3&gt;It does not&lt;/h3&gt;
+        &lt;ul&gt;
+          &lt;li&gt;generate or edit &lt;code&gt;sw.js&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;scan build assets&lt;/li&gt;
+          &lt;li&gt;inject a precache manifest&lt;/li&gt;
+          &lt;li&gt;route requests or choose strategies&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/section&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;wb-code-grid&quot;&gt;
+      &lt;section class=&quot;wb-code-block&quot;&gt;
+        &lt;h3&gt;Native registration&lt;/h3&gt;
+        &lt;pre&gt;&lt;code&gt;if (&quot;serviceWorker&quot; in navigator) {
+  await navigator.serviceWorker.register(
+    &quot;/service-worker.js&quot;,
+  );
+}&lt;/code&gt;&lt;/pre&gt;
+      &lt;/section&gt;
+      &lt;section class=&quot;wb-code-block&quot;&gt;
+        &lt;h3&gt;Optional &lt;code&gt;workbox-window&lt;/code&gt; wrapper&lt;/h3&gt;
+        &lt;pre&gt;&lt;code&gt;import { Workbox } from &quot;workbox-window&quot;;
+
+const wb = new Workbox(&quot;/service-worker.js&quot;);
+wb.addEventListener(&quot;waiting&quot;, showUpdatePrompt);
+await wb.register();&lt;/code&gt;&lt;/pre&gt;
+      &lt;/section&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;wb-note&quot;&gt;&lt;code&gt;Workbox&lt;/code&gt; is the primary API entry point of the &lt;code&gt;workbox-window&lt;/code&gt; package. The package is not an entry point into Workbox&#x27;s build API.&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;div id=&quot;wb-stack-panel&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;wb-stack-tab&quot; hidden&gt;
+    &lt;h2&gt;How this fits your Vite+ / htmx application&lt;/h2&gt;
+    &lt;div class=&quot;wb-lane&quot;&gt;
+      &lt;div class=&quot;wb-lane-label&quot;&gt;&lt;h3&gt;Build&lt;/h3&gt;&lt;span class=&quot;wb-context text-small&quot;&gt;Before deployment&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-flow wb-four&quot;&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;Vite+ build&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Produces application assets&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;Your source &lt;code&gt;sw.js&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Worker behavior&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;&lt;code&gt;injectManifest()&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Called after assets exist; direct API does not bundle &lt;code&gt;sw.js&lt;/code&gt;&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step&quot;&gt;&lt;strong&gt;Deployable site&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Assets + completed worker&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;wb-lane&quot;&gt;
+      &lt;div class=&quot;wb-lane-label&quot;&gt;&lt;h3&gt;Page load&lt;/h3&gt;&lt;span class=&quot;wb-context text-small&quot;&gt;After deployment&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-flow&quot;&gt;
+        &lt;div class=&quot;wb-step window&quot;&gt;&lt;strong&gt;Browser loads app&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;HTML + htmx + your JS&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step window&quot;&gt;&lt;strong&gt;Register &lt;code&gt;sw.js&lt;/code&gt;&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Native API or optional &lt;code&gt;workbox-window&lt;/code&gt;&lt;/p&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step window&quot;&gt;&lt;strong&gt;Browser lifecycle&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Install → wait → activate → control&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;wb-lane&quot;&gt;
+      &lt;div class=&quot;wb-lane-label&quot;&gt;&lt;h3&gt;Requests&lt;/h3&gt;&lt;span class=&quot;wb-context text-small&quot;&gt;While controlled&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;wb-flow&quot;&gt;
+        &lt;div class=&quot;wb-step window&quot;&gt;&lt;strong&gt;Navigation, htmx, or &lt;code&gt;fetch()&lt;/code&gt;&lt;/strong&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step worker&quot;&gt;&lt;strong&gt;Service-worker &lt;code&gt;fetch&lt;/code&gt; event&lt;/strong&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-arrow&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+        &lt;div class=&quot;wb-step worker&quot;&gt;&lt;strong&gt;Route + strategy&lt;/strong&gt;&lt;p class=&quot;text-small&quot;&gt;Returns response&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;p class=&quot;wb-note&quot;&gt;&lt;strong&gt;Minimal custom-worker shape:&lt;/strong&gt; Vite+ builds the site; &lt;code&gt;injectManifest()&lt;/code&gt; performs one build-time transformation; precaching, routing, and strategies run inside the finished worker; native registration is sufficient unless you specifically need &lt;code&gt;workbox-window&lt;/code&gt;&#x27;s conveniences.&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;footer class=&quot;wb-sources text-small&quot;&gt;
+    Official references:
+    &lt;a href=&quot;https://developer.chrome.com/docs/workbox/modules&quot;&gt;module map&lt;/a&gt;,
+    &lt;a href=&quot;https://developer.chrome.com/docs/workbox/modules/workbox-build&quot;&gt;&lt;code&gt;workbox-build&lt;/code&gt;&lt;/a&gt;,
+    &lt;a href=&quot;https://developer.chrome.com/docs/workbox/modules/workbox-precaching&quot;&gt;&lt;code&gt;workbox-precaching&lt;/code&gt;&lt;/a&gt;,
+    &lt;a href=&quot;https://developer.chrome.com/docs/workbox/modules/workbox-routing&quot;&gt;&lt;code&gt;workbox-routing&lt;/code&gt;&lt;/a&gt;,
+    and &lt;a href=&quot;https://developer.chrome.com/docs/workbox/modules/workbox-window&quot;&gt;&lt;code&gt;workbox-window&lt;/code&gt;&lt;/a&gt;.
+  &lt;/footer&gt;
+&lt;/div&gt;
+
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+  let lastPointerWasTouch = false;
+  let pinnedByTouch = false;
+
+  const getTrigger = (target) =&gt;
+    target?.nodeType === Node.ELEMENT_NODE
+      ? target.closest(&quot;[data-tooltip]&quot;)
+      : null;
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    pinnedByTouch = false;
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handlePointer = (event) =&gt; {
+    lastPointerWasTouch =
+      event.type === &quot;pointerdown&quot; &amp;&amp; event.pointerType === &quot;touch&quot;;
+  };
+  const handleTouchClick = (event) =&gt; {
+    const isTouch = event.pointerType === &quot;touch&quot; || lastPointerWasTouch;
+    lastPointerWasTouch = false;
+    if (!isTouch || event.detail === 0) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (
+      trigger == null ||
+      !trigger.isConnected ||
+      getContent(trigger).length === 0 ||
+      (pinnedByTouch &amp;&amp; activeTrigger === trigger)
+    ) {
+      if (pinnedByTouch) {
+        closeTooltip();
+      }
+      return;
+    }
+    openTooltip(trigger);
+    pinnedByTouch = activeTrigger === trigger;
+    window.setTimeout(() =&gt; {
+      if (activeTrigger === trigger &amp;&amp; !trigger.isConnected) {
+        closeTooltip(false);
+      }
+    }, 0);
+  };
+  const handleLeave = (event) =&gt; {
+    if (pinnedByTouch) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    lastPointerWasTouch = false;
+    const trigger = getTrigger(event.target);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    lastPointerWasTouch = false;
+    document.removeEventListener(&quot;pointerover&quot;, handlePointerOpen);
+    document.removeEventListener(&quot;pointerdown&quot;, handlePointer);
+    document.removeEventListener(&quot;pointercancel&quot;, handlePointer);
+    document.removeEventListener(&quot;click&quot;, handleTouchClick);
+    document.removeEventListener(&quot;pointerout&quot;, handleLeave);
+    document.removeEventListener(&quot;focusin&quot;, handleFocusIn);
+    document.removeEventListener(&quot;focusout&quot;, handleLeave);
+    document.removeEventListener(&quot;keydown&quot;, handleKeyDown);
+    document.removeEventListener(&quot;contextmenu&quot;, handleContextMenu);
+    tooltip = null;
+  };
+
+  document.addEventListener(&quot;pointerover&quot;, handlePointerOpen);
+  document.addEventListener(&quot;pointerdown&quot;, handlePointer);
+  document.addEventListener(&quot;pointercancel&quot;, handlePointer);
+  document.addEventListener(&quot;click&quot;, handleTouchClick);
+  document.addEventListener(&quot;pointerout&quot;, handleLeave);
+  document.addEventListener(&quot;focusin&quot;, handleFocusIn);
+  document.addEventListener(&quot;focusout&quot;, handleLeave);
+  document.addEventListener(&quot;keydown&quot;, handleKeyDown);
+  document.addEventListener(&quot;contextmenu&quot;, handleContextMenu);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-tabs&quot;&gt;
+(() =&gt; {
+  const selector = &#x27;.nav[role=&quot;tablist&quot;] [role=&quot;tab&quot;]&#x27;;
+  const disabled = &#x27;:disabled,[aria-disabled=&quot;true&quot;]&#x27;;
+  const selectTab = (selected) =&gt; {
+    const panelId = selected.getAttribute(&quot;aria-controls&quot;);
+    for (const tab of selected.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;)) {
+      const active = tab === selected;
+      tab.classList.toggle(&quot;active&quot;, active);
+      tab.setAttribute(&quot;aria-selected&quot;, String(active));
+      const id = tab.getAttribute(&quot;aria-controls&quot;);
+      const panel = id &amp;&amp; document.getElementById(id);
+      if (panel != null) {
+        panel.hidden = id !== panelId;
+        if (!panel.hidden &amp;&amp; selected.id) {
+          panel.setAttribute(&quot;aria-labelledby&quot;, selected.id);
+        }
+      }
+    }
+  };
+  const interact = (event) =&gt; {
+    const tab = event.target?.closest?.(selector);
+    if (event.defaultPrevented || tab == null || tab.matches(disabled)) {
+      return;
+    }
+    if (event.type === &quot;click&quot;) {
+      selectTab(tab);
+      return;
+    }
+    const tabs = Array.from(
+      tab.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;),
+    ).filter((candidate) =&gt; !candidate.matches(disabled));
+    const current = tabs.indexOf(tab);
+    let next;
+    if (event.key === &quot;ArrowRight&quot; || event.key === &quot;ArrowDown&quot;) {
+      next = (current + 1) % tabs.length;
+    } else if (event.key === &quot;ArrowLeft&quot; || event.key === &quot;ArrowUp&quot;) {
+      next = (current + tabs.length - 1) % tabs.length;
+    } else if (event.key === &quot;Home&quot;) {
+      next = 0;
+    } else if (event.key === &quot;End&quot;) {
+      next = tabs.length - 1;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    tabs[next].focus();
+    selectTab(tabs[next]);
+  };
+
+  for (const list of document.querySelectorAll(&#x27;.nav[role=&quot;tablist&quot;]&#x27;)) {
+    const selected =
+      list.querySelector(&#x27;[role=&quot;tab&quot;][aria-selected=&quot;true&quot;]&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;].active&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;]&#x27;);
+    if (selected != null) {
+      selectTab(selected);
+    }
+  }
+  document.addEventListener(&quot;click&quot;, interact);
+  document.addEventListener(&quot;keydown&quot;, interact);
+  window.addEventListener(&quot;pagehide&quot;, () =&gt; {
+    document.removeEventListener(&quot;click&quot;, interact);
+    document.removeEventListener(&quot;keydown&quot;, interact);
+  }, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+</body>
+</html>

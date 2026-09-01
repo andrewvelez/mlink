@@ -9,15 +9,9 @@ const cacheName = cachePrefix + "__CACHE_VERSION__";
 const scopeUrl = new URL("./", self.location.href);
 const offlineDocumentUrl = new URL("./index.html", scopeUrl).href;
 
-const applicationShell = [
-  "./",
-  "./index.html",
-  "./app.js",
-  "./static/styles/global.css",
-  "./manifest.json",
-  "./static/icons/192x192.png",
-  "./static/icons/icon_512.png",
-].map((path) => new URL(path, scopeUrl).href);
+const applicationShell = self.__WB_MANIFEST.map(({ url }) =>
+  new URL(url, scopeUrl).href
+);
 
 const applicationShellUrls = new Set(applicationShell);
 

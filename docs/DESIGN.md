@@ -2,12 +2,10 @@
 
 ## Architecture
 
-The smallest and most simple decision in architecture is typically the right one.
+Keep it simple.  Don't repeat yourself.
 
 For the Link-Up application, HTML, CSS, JavaScript, and standard browser APIs are
-"good enough". "Good enough" still means correct. In some domains it may mean
-feature complete (think NASA), or safety-feature complete (think a bank).
-Link-Up uses a small, framework-free PWA written in vanilla JavaScript and
+"good enough". "Good enough" still means correct. Link-Up uses a small, framework-free PWA written in vanilla JavaScript and
 bundled with Bun.
 
 ### Application Runtime
@@ -36,7 +34,7 @@ I like to think there are two definitions of "local-first". First, the *soft*
 definition: local-first software keeps data on the local client machine and uses
 servers as redundant backups or replication to other clients. Then there is the
 *hard* definition: local-first software keeps all users' data with the users.
-The user defines where and when that data can be shared. This app uses the
+The user defines where and when that data can be shared. This app will attempt to use the
 second definition.
 
 #### Network Infrastructure & P2P
@@ -62,6 +60,15 @@ The completed PWA is intended to provide its local interface without depending
 on a remote application service. The persistence mechanism, browser storage
 APIs, schema, data lifecycle, and user-controlled export path have not yet been
 decided.
+
+Link-Up first renders a minimal network-backed shell with a loading indicator
+while the complete application is cached. Afterward, the app is served
+`CacheOnly`, while the shell remains revalidated for updates. Each release uses
+one named `Cache` containing all resource entries and a reserved
+`{ createdAt, expiresAt }` entry; the entire cache expires one year after it is
+populated. `app.js` and the `sw.js` registration URL use `?v=YYYY-MM-DD`,
+assuming one production release per day. A replacement cache is completed
+before the old cache is removed.
 
 ### Current Proof-of-Concept Boundary
 

@@ -23,18 +23,16 @@ function updateNavigation(page) {
   }
 }
 
-async function shareLinkUp() {
-  try {
-    await navigator.share({
-      title: "Link-Up",
-      text: "Take a look at Link-Up.",
-      url: window.location.href.split("#")[0],
-    });
-  } catch (error) {
+function shareLinkUp() {
+  navigator.share({
+    title: "Link-Up",
+    text: "Take a look at Link-Up.",
+    url: window.location.href.split("#")[0],
+  }).catch((error) => {
     if (error.name !== "AbortError") {
       console.error("Unable to share Link-Up.", error);
     }
-  }
+  });
 }
 
 function render() {
@@ -50,12 +48,10 @@ function render() {
   app.focus();
 }
 
-async function registerServiceWorker() {
-  try {
-    await navigator.serviceWorker.register("./sw.js");
-  } catch (error) {
+function registerServiceWorker() {
+  navigator.serviceWorker.register("./sw.js").catch((error) => {
     console.error("Service-worker registration failed.", error);
-  }
+  });
 }
 
 function addAppListeners() {

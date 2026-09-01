@@ -7,6 +7,7 @@
 
 import { copyFileSync, cpSync, rmSync } from "node:fs";
 import { join, resolve, sep } from "node:path";
+import { injectManifest } from "workbox-build";
 
 const sourceDirectory = join(import.meta.dir, "src");
 const staticDirectory = join(import.meta.dir, "static");
@@ -17,7 +18,7 @@ function clean() {
 }
 
 async function bundle() {
-  const bundledBuild = await Bun.build({
+  const bundled = await Bun.build({
     entrypoints: [
       join(sourceDirectory, "app.js"),
       join(sourceDirectory, "sw.js"),
@@ -25,14 +26,16 @@ async function bundle() {
     outdir: outputDirectory,
     sourcemap: "external",
     target: "browser",
+  })
+  .catch(err => {
+    console.error(err);
+    throw new Error("Bun build failed.");
   });
 
-  if (!bundledBuild.success) {
-    let logMsg;
-    for (logMsg of bundledBuild.logs) {
-      console.error(logMsg);
+  if (!bundled.success) {
+    if (bundled.logs.count > 0) {
+      console.error("Errors during bundling: \n" + bundled.logs.join("\n"));
     }
-
     throw new Error("Bun build failed.");
   }
 }
@@ -53,90 +56,82 @@ function copyAssets() {
   });
 }
 
-async function versionServiceWorker() {
-  const buildTime = new Date();
-  const appVersion = [
-    buildTime.getUTCFullYear(),
-    buildTime.getUTCMonth() + 1,
-    buildTime.getUTCDate(),
-  ].join(".");
-  const buildNumber = buildTime
-    .toISOString()
-    .slice(11, 23)
-    .replace(/[:.]/g, "");
-  const cacheVersion = `${appVersion}-b${buildNumber}`;
-  const serviceWorkerPath = join(outputDirectory, "sw.js");
-  const serviceWorker = await Bun.file(serviceWorkerPath).text();
-
-  if (!serviceWorker.includes("__CACHE_VERSION__")) {
-    throw new Error("The service-worker cache-version placeholder is missing.");
-  }
-
-  await Bun.write(
-    serviceWorkerPath,
-    serviceWorker.replace("__CACHE_VERSION__", cacheVersion),
-  );
-
-  return cacheVersion;
-}
-
 async function build() {
   clean();
+
+  injectManifest({
+    globDirectory: "dist",
+    globPatterns: ["**/*.{html,js,css,svg,png}"],
+    swSrc: "src/sw.js",
+    swDest: "src/sw.js",
+  }).then(({count, size, warnings}) => {
+    if (warnings.length > 0) {
+      console.warn('Warnings encountered while injecting the manifest:', warnings.join('\n'));
+    }
+  });
+
   await bundle();
   copyAssets();
-  const cacheVersion = await versionServiceWorker();
-
-  console.log(`Built the PWA in dist/ (${cacheVersion}).`);
 }
 
 async function test() {
   await build();
 }
 
+/**
+ * @description resolves what's requested to what can actually be served.  If it can't be
+ * served, then we return the empty string, never null, no exceptions.
+ * @param {object} request
+ * @returns {object} bunfile
+ */
+function resolveRequestFilepath(request) {
+  let filePath = "";
+  let bunfile = Bun.file(filepath);
+
+  try {
+    const pathname = decodeURIComponent(new URL(request.url).pathname);
+    const requestedFile = (pathname === "/" ? "index.html" : pathname.slice(1));
+    filePath = resolve(outputDirectory, requestedFile);
+
+    if (!filePath.startsWith(outputDirectory + sep)) {
+      filePath = "";
+    }
+
+    bunfile = Bun.file(filepath);
+  } catch (err) {
+    filePath = "";
+    bunfile = Bun.file("");
+  }
+
+  return bunfile;
+}
+
+async function fetch(request) {
+  if (!["GET", "HEAD"].includes(request.method)) {
+    return new Response("Method Not Allowed", {
+      status: 405,
+      headers: { Allow: "GET, HEAD" },
+    });
+  }
+
+  const file = resolveRequestFilepath(request);
+
+  if ((await file.exists())) {
+    return new Response(file, {
+      headers: { "Cache-Control": "no-cache" },
+    });
+  } else {
+    return new Response(null, { status: 404 });
+  }
+}
+
 async function start() {
   await build();
 
-  const outputDirectoryPrefix = outputDirectory + sep;
   const server = Bun.serve({
     hostname: "127.0.0.1",
-
-    async fetch(request) {
-      if (request.method !== "GET" && request.method !== "HEAD") {
-        return new Response("Method Not Allowed", {
-          status: 405,
-          headers: { Allow: "GET, HEAD" },
-        });
-      }
-
-      let pathname;
-
-      try {
-        pathname = decodeURIComponent(new URL(request.url).pathname);
-      } catch {
-        return new Response("Bad Request", { status: 400 });
-      }
-
-      const requestedFile =
-        pathname === "/" ? "index.html" : pathname.slice(1);
-      const filePath = resolve(outputDirectory, requestedFile);
-
-      if (!filePath.startsWith(outputDirectoryPrefix)) {
-        return new Response("Not Found", { status: 404 });
-      }
-
-      const file = Bun.file(filePath);
-
-      if (!(await file.exists())) {
-        return new Response("Not Found", { status: 404 });
-      }
-
-      return new Response(file, {
-        headers: { "Cache-Control": "no-cache" },
-      });
-    },
+    fetch,
   });
-
-  console.log(`Serving dist/ at ${server.url.href}`);
 }
 
 const commands = {

@@ -1,10 +1,10 @@
 {
   "id": "./",
   "scope": "./",
-  "name": "Link-Up",
+  "name": "TBD",
   "display": "standalone",
   "start_url": "./",
-  "short_name": "Link-Up",
+  "short_name": "TBD",
   "theme_color": "#E1477E",
   "description": "A local-first Progressive Web App.",
   "orientation": "any",
