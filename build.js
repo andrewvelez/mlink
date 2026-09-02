@@ -6,8 +6,10 @@
  */
 
 import { copyFileSync, cpSync, rmSync } from "node:fs";
+import { cp, copyFile } from "node:fs/promises";
 import { join, resolve, sep } from "node:path";
 import { injectManifest } from "workbox-build";
+import packageJson from "./package.json" with { type: "json" };
 
 const sourceDirectory = join(import.meta.dir, "src");
 const staticDirectory = join(import.meta.dir, "static");
@@ -15,6 +17,15 @@ const outputDirectory = join(import.meta.dir, "dist");
 
 function clean() {
   rmSync(outputDirectory, { force: true, recursive: true });
+}
+
+async function insertSWCacheVersion() {
+  const swText = await Bun.file(join(outputDirectory, "sw.js")).text();
+  if (!swText.includes("__CACHE_VERSION__")) {
+    throw new Error("The service-worker cache-version placeholder is missing.");
+  }
+
+  await Bun.write(join(outputDirectory, "sw.js"), swText.replace("__CACHE_VERSION__", packageJson.version));
 }
 
 async function bundle() {
@@ -33,45 +44,34 @@ async function bundle() {
   });
 
   if (!bundled.success) {
-    if (bundled.logs.count > 0) {
-      console.error("Errors during bundling: \n" + bundled.logs.join("\n"));
-    }
+      console.error("Errors during bundling: \n" + bundled.logs?.join("\n"));
     throw new Error("Bun build failed.");
   }
 }
 
-function copyAssets() {
-  copyFileSync(
-    join(sourceDirectory, "index.html"),
-    join(outputDirectory, "index.html"),
-  );
-
-  copyFileSync(
-    join(sourceDirectory, "manifest.json"),
-    join(outputDirectory, "manifest.json"),
-  );
-
-  cpSync(staticDirectory, join(outputDirectory, "static"), {
-    recursive: true,
-  });
+async function copyStaticFiles() {
+  await copyFile(join(sourceDirectory, "index.html"), join(outputDirectory, "index.html"));
+  await copyFile(join(sourceDirectory, "manifest.json"), join(outputDirectory, "manifest.json"));
+  await cp(staticDirectory, join(outputDirectory, "static"), { recursive: true });
 }
 
 async function build() {
   clean();
 
-  injectManifest({
+  await bundle();
+  await copyStaticFiles();
+
+  await injectManifest({
     globDirectory: "dist",
     globPatterns: ["**/*.{html,js,css,svg,png}"],
     swSrc: "src/sw.js",
-    swDest: "src/sw.js",
-  }).then(({count, size, warnings}) => {
+    swDest: "dist/sw.js",
+  }).then(({ count, size, warnings }) => {
     if (warnings.length > 0) {
       console.warn('Warnings encountered while injecting the manifest:', warnings.join('\n'));
     }
   });
-
-  await bundle();
-  copyAssets();
+  await insertSWCacheVersion();
 }
 
 async function test() {
@@ -86,7 +86,7 @@ async function test() {
  */
 function resolveRequestFilepath(request) {
   let filePath = "";
-  let bunfile = Bun.file(filepath);
+  let bunfile = Bun.file(filePath);
 
   try {
     const pathname = decodeURIComponent(new URL(request.url).pathname);
@@ -97,7 +97,7 @@ function resolveRequestFilepath(request) {
       filePath = "";
     }
 
-    bunfile = Bun.file(filepath);
+    bunfile = Bun.file(filePath);
   } catch (err) {
     filePath = "";
     bunfile = Bun.file("");

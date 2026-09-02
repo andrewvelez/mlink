@@ -1,5 +1,6 @@
 {
   "name": "mlink",
+  "version": "0.1.0",
   "description": "A local-first Progressive Web App.",
   "type": "module",
   "scripts": {
