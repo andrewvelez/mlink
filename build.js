@@ -32,7 +32,6 @@ async function bundle() {
   const bundled = await Bun.build({
     entrypoints: [
       join(sourceDirectory, "app.js"),
-      join(sourceDirectory, "sw.js"),
     ],
     outdir: outputDirectory,
     sourcemap: "external",
@@ -62,10 +61,10 @@ async function build() {
   await copyStaticFiles();
 
   await injectManifest({
-    globDirectory: "dist",
-    globPatterns: ["**/*.{html,js,css,svg,png}"],
-    swSrc: "src/sw.js",
-    swDest: "dist/sw.js",
+    globDirectory: outputDirectory,
+    globPatterns: ["**/*.{html,js,json,css,svg,png}"],
+    swSrc: join(sourceDirectory, "sw.js"),
+    swDest: join(outputDirectory, "sw.js"),
   }).then(({ count, size, warnings }) => {
     if (warnings.length > 0) {
       console.warn('Warnings encountered while injecting the manifest:', warnings.join('\n'));
