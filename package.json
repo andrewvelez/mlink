@@ -4,10 +4,10 @@
   "description": "A local-first Progressive Web App.",
   "type": "module",
   "scripts": {
-    "clean": "bun run --bun ./build.js clean",
-    "build": "bun run --bun ./build.js build",
-    "test": "bun run --bun ./build.js test",
-    "start": "bun run --bun ./build.js start"
+    "clean": "bun build.js clean",
+    "build": "bun build.js build",
+    "test": "bun build.js test",
+    "start": "bun build.js start"
   },
   "author": "Andrew Velez 2026",
   "license": "MIT",

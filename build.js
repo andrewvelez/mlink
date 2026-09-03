@@ -1,4 +1,4 @@
-#! /usr/bin/env bun
+#!/usr/bin/env bun
 /**
  * @license SPDX-License-Identifier: MIT
  * @author Andrew Velez 2026
@@ -44,7 +44,7 @@ async function bundle() {
   });
 
   if (!bundled.success) {
-      console.error("Errors during bundling: \n" + bundled.logs?.join("\n"));
+    console.error("Errors during bundling: \n" + bundled.logs?.join("\n"));
     throw new Error("Bun build failed.");
   }
 }
@@ -141,8 +141,10 @@ const commands = {
   start,
 };
 
-/** Dispatches the requested project command inside the Bun build-time runtime. */
-async function run() {
+/**
+ * @description build.js is a module and a bun entry point, we process the command passed to build.js
+ */
+async function main() {
   const scriptCommand = process.argv[2];
 
   if (!scriptCommand || !Object.hasOwn(commands, scriptCommand)) {
@@ -154,9 +156,4 @@ async function run() {
   await commands[scriptCommand]();
 }
 
-try {
-  await run();
-} catch (error) {
-  console.error("Command failed.", error);
-  process.exitCode = 1;
-}
+await main();
