@@ -75,6 +75,17 @@ async function build() {
 
 async function test() {
   await build();
+
+  const testRunner = Bun.spawn([process.execPath, "test"], {
+    cwd: import.meta.dir,
+    stdout: "inherit",
+    stderr: "inherit",
+  });
+  const exitCode = await testRunner.exited;
+
+  if (exitCode !== 0) {
+    process.exitCode = exitCode;
+  }
 }
 
 /**
