@@ -9,14 +9,30 @@
 
 ## Commands
 
-| &nbsp; | &nbsp; |
-|--------|--------|
-| **Install dependencies:** | `bun install` |
-| **Remove project build artifacts:** | `bun run --bun ./build.js clean` |
-| **Bundle project for production deployment:** | `bun run --bun ./build.js build` |
-| **Build project and run all tests (tests are coming soon):** | `bun run --bun ./build.js test` |
-| **Build project and start local dev server:** | `bun run --bun ./build.js start` |
-| &nbsp; | &nbsp; |
+* Install dependencies
+  >
+  > `bun install`
+  >
+
+* Remove project build artifacts
+  >
+  > `bun run clean` **or** `bun build.js clean`
+  >
+
+* Bundle project for production deployment
+  >
+  > `bun run build` **or** `bun build.js build`
+  >
+
+* Build project and run all tests (tests are coming soon)
+  >
+  > `bun run test` **or** `bun build.js test`
+  >
+
+* Build project and start local dev server
+  >
+  > `bun run start` **or** `bun build.js start`
+  >
 
 ## Code Style
 
