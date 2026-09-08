@@ -2,7 +2,8 @@
 
 We combine **Storytest-Driven Development (SDD)** to codify expected software behavior with **Test-Driven Development (TDD)** to guide implementation.
 
-## SDD: Specify behavior
+### Storytest Driven Development (SDD)
+> *Specifying the behavior*
 
 Express business needs as user stories and define their acceptance criteria through concrete, testable examples. Write these examples in **Gherkin**, using the language of the user's domain, and execute them with **Cucumber**.
 
@@ -23,7 +24,8 @@ Feature: Homework submission
 
 These storytests serve as executable specifications of higher-level behavior.
 
-## TDD: Develop the implementation
+### Test Driven Development (TDD)
+> *Designing the implementation*
 
 Use unit tests to develop the code that fulfills those specifications:
 
@@ -33,6 +35,6 @@ Use unit tests to develop the code that fulfills those specifications:
 
 Use whichever unit-testing tools suit the project; the methodology does not depend on a particular framework.
 
-## Working cycle
+### Working cycle
 
 Define a story and its acceptance scenarios before implementation. Use the TDD cycle to build the supporting code, then verify that the storytests pass. Keep both sets of tests as regression checks as the software evolves.
