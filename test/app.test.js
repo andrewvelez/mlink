@@ -41,34 +41,20 @@ function createElement(properties = {}) {
 }
 
 async function loadApp({
-  app = createElement(),
-  hash = "",
   share,
   serviceWorker,
 } = {}) {
-  const homeLink = createElement({ hash: "#home" });
-  const aboutLink = createElement({ hash: "#about" });
-  const homeSection = createElement({ id: "home" });
-  const aboutSection = createElement({ id: "about", hidden: true });
   const shareButton = createElement({ hidden: true });
   const windowListeners = new Map();
   const document = {
-    title: "",
     querySelector: mock((selector) => {
-      if (selector === "#app") return app;
       if (selector === "#share-button") return shareButton;
       return null;
-    }),
-    querySelectorAll: mock((selector) => {
-      if (selector === "nav a") return [homeLink, aboutLink];
-      if (selector === "#app > .page") return [homeSection, aboutSection];
-      return [];
     }),
   };
   const window = {
     location: {
-      hash,
-      href: `https://example.test/index.html${hash}`,
+      href: "https://example.test/home.html",
     },
     addEventListener: mock((type, listener, options) => {
       windowListeners.set(type, { listener, options });
@@ -86,12 +72,6 @@ async function loadApp({
   await import(`../src/app.js?test=${importNumber++}`);
 
   return {
-    aboutLink,
-    aboutSection,
-    app,
-    document,
-    homeLink,
-    homeSection,
     shareButton,
     window,
     windowListeners,
@@ -107,29 +87,9 @@ afterEach(() => {
 });
 
 describe("app", () => {
-  test("renders the home and about routes", async () => {
-    const context = await loadApp();
-
-    expect(context.homeSection.hidden).toBe(false);
-    expect(context.aboutSection.hidden).toBe(true);
-    expect(context.homeLink.getAttribute("aria-current")).toBe("page");
-    expect(context.aboutLink.getAttribute("aria-current")).toBeUndefined();
-    expect(context.document.title).toBe("Link-Up");
-
-    context.window.location.hash = "#about";
-    context.windowListeners.get("hashchange").listener();
-
-    expect(context.homeSection.hidden).toBe(true);
-    expect(context.aboutSection.hidden).toBe(false);
-    expect(context.homeLink.getAttribute("aria-current")).toBeUndefined();
-    expect(context.aboutLink.getAttribute("aria-current")).toBe("page");
-    expect(context.document.title).toBe("About | Link-Up");
-    expect(context.app.focus).toHaveBeenCalledTimes(2);
-  });
-
-  test("shares the current page without its hash", async () => {
+  test("shares the current page", async () => {
     const share = mock(() => Promise.resolve());
-    const context = await loadApp({ hash: "#about", share });
+    const context = await loadApp({ share });
 
     expect(context.shareButton.hidden).toBe(false);
     context.shareButton.listeners.get("click")();
@@ -137,7 +97,7 @@ describe("app", () => {
     expect(share).toHaveBeenCalledWith({
       title: "Link-Up",
       text: "Take a look at Link-Up.",
-      url: "https://example.test/index.html",
+      url: "https://example.test/home.html",
     });
   });
 
@@ -179,9 +139,4 @@ describe("app", () => {
     expect(context.windowListeners.has("load")).toBe(false);
   });
 
-  test("fails when the application root is missing", async () => {
-    await expect(loadApp({ app: null })).rejects.toThrow(
-      "The application root is missing.",
-    );
-  });
 });

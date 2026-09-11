@@ -254,7 +254,7 @@ describe("service worker", () => {
         : [
             request,
             "https://mlink.test/app/",
-            "https://mlink.test/app/index.html",
+            "https://mlink.test/app/home.html",
           ],
     );
   });

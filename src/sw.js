@@ -7,7 +7,7 @@
 const cachePrefix = "mlink-";
 const cacheName = cachePrefix + "__CACHE_VERSION__";
 const scopeUrl = new URL("./", self.location.href);
-const offlineDocumentUrl = new URL("./index.html", scopeUrl).href;
+const offlineDocumentUrl = new URL("./home.html", scopeUrl).href;
 
 const applicationShell = self.__WB_MANIFEST.map(({ url }) =>
   new URL(url, scopeUrl).href

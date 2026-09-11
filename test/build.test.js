@@ -113,11 +113,13 @@ describe("build", () => {
 
     for (const path of [
       "app.js",
-      "app.js.map",
-      "index.html",
+      "home.html",
+      "about.html",
       "manifest.json",
       "static/styles/global.css",
+      "static/styles/pico.cyan.min.css",
       "sw.js",
+      "mlink",
     ]) {
       expect(existsSync(join(fixtureDirectory, "dist", path))).toBe(true);
     }
@@ -129,7 +131,9 @@ describe("build", () => {
 
     expect(serviceWorker).not.toContain("__CACHE_VERSION__");
     expect(serviceWorker).not.toContain("self.__WB_MANIFEST");
-    expect(serviceWorker).toContain('const cacheName = cachePrefix + "0.1.0"');
+    expect(serviceWorker).toMatch(
+      /const cacheName = cachePrefix \+ "1\.0\.\d{8}"/,
+    );
   });
 
   test("fails when the service-worker cache placeholder is missing", async () => {
@@ -150,9 +154,12 @@ describe("build", () => {
     );
   });
 
-  test("serves normal HTTP paths and rejects unsupported methods", async () => {
+  test("the executable serves normal HTTP paths and rejects unsupported methods", async () => {
     const fixtureDirectory = createFixture();
-    const child = Bun.spawn([process.execPath, "build.js", "start"], {
+    const buildResult = await runBuildScript(fixtureDirectory, "build");
+    expect(buildResult.exitCode).toBe(0);
+
+    const child = Bun.spawn([join(fixtureDirectory, "dist", "mlink")], {
       cwd: fixtureDirectory,
       stdout: "pipe",
       stderr: "pipe",
@@ -170,11 +177,10 @@ describe("build", () => {
       const missingResponse = await fetch(new URL("missing", serverUrl));
 
       expect(pageResponse.status).toBe(200);
-      expect(pageResponse.headers.get("Cache-Control")).toBe("no-cache");
-      expect(await pageResponse.text()).toContain("<title>Link-Up</title>");
+      expect(pageResponse.headers.get("Content-Type")).toContain("text/html");
+      expect(await pageResponse.text()).toContain("<title>Home</title>");
       expect(headResponse.status).toBe(200);
-      expect(postResponse.status).toBe(405);
-      expect(postResponse.headers.get("Allow")).toBe("GET, HEAD");
+      expect(postResponse.status).toBe(404);
       expect(missingResponse.status).toBe(404);
     } finally {
       child.kill();

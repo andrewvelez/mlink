@@ -1,11 +1,10 @@
-# Link-Up Project Design
+# Project Design
 
 ## Architecture
 
 Keep it simple.  Don't repeat yourself.
 
-For the Link-Up application, HTML, CSS, JavaScript, and standard browser APIs are
-"good enough". "Good enough" still means correct. Link-Up uses a small, framework-free PWA written in vanilla JavaScript and
+For the Link-Up application, HTML, CSS, JavaScript, and standard browser APIs are "good enough" tools. They have almost universal device reachability, entrenched developer familiarity Link-Up uses a small, framework-free PWA written in vanilla JavaScript and
 bundled with Bun.
 
 ### Application Runtime
@@ -19,14 +18,13 @@ goal.
 
 Application code and shell documents live under `src/`, while directly copied
 browser assets live under `static/`. The browser UI uses HTML, CSS, the DOM, and
-standard Web and PWA APIs without a frontend framework. The browser is the
-application runtime. Bun installs dependencies, runs project tasks, and bundles
-the application; it is not the application runtime.
+standard Web and PWA APIs without a frontend framework. Bun installs dependencies,
+runs project tasks, bundles the browser assets, and compiles the local server.
 
 A minimal PWA shell, web app manifest, registered service worker, and production
-asset pipeline are configured. The complete browser build is emitted under
-`dist/`. Production deployment and any future full-stack executable packaging
-remain unresolved.
+asset pipeline are configured. `dist/` stages the browser assets for service-worker
+manifest injection, then `dist/mlink` is compiled as the host-native, full-stack
+executable that embeds and serves them.
 
 #### Local-First
 
@@ -108,8 +106,10 @@ Link-Up PWA
 ├── package.json
 ├── src/
 │   ├── app.js
-│   ├── index.html
+│   ├── about.html
+│   ├── home.html
 │   ├── manifest.json
+│   ├── server.js
 │   └── sw.js
 └── static/
     ├── icons/
@@ -117,10 +117,10 @@ Link-Up PWA
         └── global.css
 ```
 
-`build.js` uses Bun to bundle `src/app.js` and `src/sw.js`, copy the shell
-documents, and copy `static/` to `dist/static/`. The complete current browser
-application is generated under `dist/`; that directory is build output and is
-not edited directly.
+`build.js` cleans `dist/`, stages the browser shell and static assets, injects the
+service-worker manifest and cache version, then compiles `src/server.js` into
+`dist/mlink`. The executable embeds and serves the completed browser application;
+`dist/` is build output and is not edited directly.
 
 ## Local Authority
 

@@ -5,15 +5,21 @@
  * @desc Builds and serves Link-Up's browser PWA assets with Bun.
  */
 
-import { copyFileSync, cpSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join, resolve, sep } from "node:path";
+import { copyFileSync, cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { injectManifest } from "workbox-build";
-import packageJson from "./package.json" with { type: "json" };
 
 const sourceDirectory = join(import.meta.dir, "src");
 const staticDirectory = join(import.meta.dir, "static");
 const outputDirectory = join(import.meta.dir, "dist");
-let shutdownTimer;
+const executablePath = join(outputDirectory, "mlink");
+
+export function getAppVersion() {
+  /** @type {{ baseVersion: string }} */
+  const pkg = JSON.parse(readFileSync("package.json", "utf8"));
+  const baseVersion = pkg?.baseVersion;
+  return baseVersion + '.' + new Date().toISOString().slice(0, 10).replaceAll("-", "");
+}
 
 function clean() {
   rmSync(outputDirectory, { force: true, recursive: true });
@@ -25,21 +31,46 @@ function insertSWCacheVersion() {
     throw new Error("The service-worker cache-version placeholder is missing.");
   }
 
-  writeFileSync(join(outputDirectory, "sw.js"), swText.replace("__CACHE_VERSION__", packageJson.version));
+  writeFileSync(join(outputDirectory, "sw.js"), swText.replace("__CACHE_VERSION__", getAppVersion()));
+}
+
+function copyStaticFiles() {
+  mkdirSync(outputDirectory, { recursive: true });
+
+  for (const filename of ["app.js", "home.html", "about.html", "manifest.json"]) {
+    copyFileSync(join(sourceDirectory, filename), join(outputDirectory, filename));
+  }
+  cpSync(staticDirectory, join(outputDirectory, "static"), {
+    filter: (source) => source !== join(staticDirectory, "js/pico-css.js"),
+    recursive: true,
+  });
+  copyFileSync(
+    join(import.meta.dir, "node_modules/@picocss/pico/css/pico.cyan.min.css"),
+    join(outputDirectory, "static/styles/pico.cyan.min.css"),
+  );
+}
+
+async function bundleManifest() {
+  const { warnings } = await injectManifest({
+    globDirectory: outputDirectory,
+    globPatterns: ["**/*.{html,js,json,css,svg,png}"],
+    swSrc: join(sourceDirectory, "sw.js"),
+    swDest: join(outputDirectory, "sw.js"),
+  });
+
+  if (warnings.length > 0) {
+    console.warn("Warnings encountered while injecting the manifest:", warnings.join("\n"));
+  }
 }
 
 async function bundle() {
   const bundled = await Bun.build({
-    entrypoints: [
-      join(sourceDirectory, "app.js"),
-    ],
-    outdir: outputDirectory,
-    sourcemap: "external",
-    target: "browser",
-  })
-  .catch(err => {
-    console.error(err);
-    throw new Error("Bun build failed.");
+    entrypoints: [join(sourceDirectory, "server.js")],
+    compile: { outfile: executablePath },
+    naming: {
+      asset: "[name].[ext]",
+      entry: "[name].[ext]",
+    },
   });
 
   if (!bundled.success) {
@@ -48,29 +79,12 @@ async function bundle() {
   }
 }
 
-function copyStaticFiles() {
-  copyFileSync(join(sourceDirectory, "index.html"), join(outputDirectory, "index.html"));
-  copyFileSync(join(sourceDirectory, "manifest.json"), join(outputDirectory, "manifest.json"));
-  cpSync(staticDirectory, join(outputDirectory, "static"), { recursive: true });
-}
-
 async function build() {
   clean();
-
-  await bundle();
   copyStaticFiles();
-
-  await injectManifest({
-    globDirectory: outputDirectory,
-    globPatterns: ["**/*.{html,js,json,css,svg,png}"],
-    swSrc: join(sourceDirectory, "sw.js"),
-    swDest: join(outputDirectory, "sw.js"),
-  }).then(({ count, size, warnings }) => {
-    if (warnings.length > 0) {
-      console.warn('Warnings encountered while injecting the manifest:', warnings.join('\n'));
-    }
-  });
+  await bundleManifest();
   insertSWCacheVersion();
+  await bundle();
 }
 
 async function test() {
@@ -88,72 +102,9 @@ async function test() {
   }
 }
 
-/**
- * @description resolves what's requested to what can actually be served.  If it can't be
- * served, then we return the empty string, never null, no exceptions.
- * @param {object} request
- * @returns {object} bunfile
- */
-function resolveRequestFilepath(request) {
-  let filePath = "";
-  let bunfile = Bun.file(filePath);
-
-  try {
-    const pathname = decodeURIComponent(new URL(request.url).pathname);
-    const requestedFile = (pathname === "/" ? "index.html" : pathname.slice(1));
-    filePath = resolve(outputDirectory, requestedFile);
-
-    if (!filePath.startsWith(outputDirectory + sep)) {
-      filePath = "";
-    }
-
-    bunfile = Bun.file(filePath);
-  } catch (err) {
-    filePath = "";
-    bunfile = Bun.file("");
-  }
-
-  return bunfile;
-}
-
-function resetShutdownTimer(server) {
-  clearTimeout(shutdownTimer);
-  shutdownTimer = setTimeout(() => server.stop(), 60 * 60 * 1000);
-}
-
-async function fetch(request, server) {
-  resetShutdownTimer(server);
-
-  if (!["GET", "HEAD"].includes(request.method)) {
-    return new Response("Method Not Allowed", {
-      status: 405,
-      headers: { Allow: "GET, HEAD" },
-    });
-  }
-
-  const file = resolveRequestFilepath(request);
-
-  if ((await file.exists())) {
-    return new Response(file, {
-      headers: { "Cache-Control": "no-cache" },
-    });
-  } else {
-    return new Response(null, { status: 404 });
-  }
-}
-
 async function start() {
   await build();
-
-  const server = Bun.serve({
-    hostname: "127.0.0.1",
-    port: 0,
-    fetch,
-  });
-
-  resetShutdownTimer(server);
-
-  console.log(`MLink running at ${server.url}\n`);
+  await import("./src/server.js");
 }
 
 const commands = {
