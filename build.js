@@ -15,7 +15,6 @@ const outputDirectory = join(import.meta.dir, "dist");
 const executablePath = join(outputDirectory, "mlink");
 
 export function getAppVersion() {
-  /** @type {{ baseVersion: string }} */
   const pkg = JSON.parse(readFileSync("package.json", "utf8"));
   const baseVersion = pkg?.baseVersion;
   return baseVersion + '.' + new Date().toISOString().slice(0, 10).replaceAll("-", "");
@@ -64,18 +63,26 @@ async function bundleManifest() {
 }
 
 async function bundle() {
-  const bundled = await Bun.build({
-    entrypoints: [join(sourceDirectory, "server.js")],
-    compile: { outfile: executablePath },
-    naming: {
-      asset: "[name].[ext]",
-      entry: "[name].[ext]",
-    },
-  });
+  let result, error;
 
-  if (!bundled.success) {
-    console.error("Errors during bundling: \n" + bundled.logs?.join("\n"));
-    throw new Error("Bun build failed.");
+  try {
+    result = await Bun.build({
+      entrypoints: [join(sourceDirectory, "server.js")],
+      compile: { outfile: executablePath },
+      naming: {
+        asset: "[name].[ext]",
+        entry: "[name].[ext]",
+      },
+    });
+  } catch (err) {
+    console.error("Caught error: ", err);
+    error = err;
+  }
+
+  if (error || !result?.success) {
+    console.error("Errors during bundling: \n" + result?.logs?.join("\n"));
+    console.error("Build failed: ", error);
+    if (error) { throw error; } else { throw new Error(result?.logs?.join("\n")); }
   }
 }
 

@@ -27,9 +27,9 @@ function asset(path) {
 
 export const files = {
   "/": { GET: home },
-  "/about.html": { GET: about },
+  "/home": { GET: home },
+  "/about": { GET: about },
   "/app.js": asset(app),
-  "/home.html": { GET: home },
   "/manifest.json": asset(manifest),
   "/static/icons/192x192.png": asset(icon192),
   "/static/icons/24x24.png": asset(icon24),
