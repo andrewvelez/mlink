@@ -38,7 +38,7 @@
 
 - If needed, the preference would be for you to ask questions to clarify the prompt before responding for all non-trivial tasks.
 - Keep responses pragmatic, idiomatic and as concise as possible.
-- Prefer changesets (total diff) with a minimum number of lines of code changed **to satisfy the task**.
+- Prefer changesets (total diff) with a minimum number of lines of code changed **to satisfy the task**; only change what is necessary.
 - Always ask for approval on your changeset summary before making any code/configuration changes.
 - Use standard Web and PWA APIs for browser capabilities and idiomatic Bun APIs for build tooling.
 - Every new source file that supports comments should contain a valid (meaning JSDoc-like) header comment with at least these properties: author (Andrew Velez 2026), the license tag (MIT), and brief description.

@@ -2,7 +2,7 @@
 
 ## Architecture
 
-Keep it simple. Do not repeat yourself.
+Keep it simple.  Don't repeat yourself.
 
 MLink is a local-first, mobile-first Progressive Web App (PWA). Its user
 interface is framework-free vanilla JavaScript, HTML, CSS, and standard browser
@@ -11,10 +11,12 @@ project tasks, stages browser assets, and compiles the application host.
 
 ### Application and Deployment Runtime
 
-The browser runs the MLink PWA in supported browsers and as an installed PWA.
-Authoritative user data and essential application logic remain on the user's
-device. Peer-to-peer networking exchanges data, but data sovereignty — not
-eliminating every server — is the architectural goal.
+MLink is a mobile-first Progressive Web App (PWA) written in vanilla JavaScript
+using the hard local-first model described below. It runs in supported browsers
+and as an installed PWA. Authoritative user data and essential application logic
+remain on the user's device. Peer-to-peer networking is a means of exchanging
+data, but data sovereignty — not eliminating every server — is the architectural
+goal.
 
 The production deployment artifact is `dist/mlink`, a full-stack executable for
 VPS deployment. It embeds the completed PWA assets and serves them through its
@@ -27,17 +29,20 @@ source live under `src/`. Directly copied browser assets live under `static/`.
 
 #### Local-First
 
-MLink follows the hard local-first model: users retain their own data and
-decide where and when to share it. Remote services can provide supporting
-capabilities, but must not become the authoritative home of application data.
+My two definitions of "local-first". First, the *soft* definition: local-first software keeps data on the local client machine and uses servers as redundant backups or replication to other clients. Then there is the *hard* definition: local-first software keeps all users' data with the users. The user defines where and when that data can be shared. This app will attempt to use the second definition.
 
 #### Network Infrastructure and P2P
 
-MLink's authoritative data and essential logic remain on the user's device.
-Peer connections may require signalling and relays. Discovery, synchronization,
-and notification delivery may also rely on remote services as those designs are
-resolved. The peer transport, its privacy model, and whether relay-only
-connections are required remain open decisions.
+MLink's authoritative user data and essential logic remain on the user's
+device. Peer connections may require signalling, and some connection designs
+may require relays. MLink therefore accepts remote signalling and relay
+infrastructure. Discovery, synchronization, and notification delivery may also
+rely on remote services as those designs are resolved. These systems must not
+become the authoritative home of the application or its data.
+
+The peer transport has not yet been selected. If direct peer connections are
+used, their privacy implications and whether relay-only connections are required
+must be resolved before peer networking ships.
 
 ### PWA Application Boundary
 
@@ -45,9 +50,10 @@ MLink runs within the browser security model. Its UI, essential application
 logic, and authoritative user data remain local. Browser and installed-PWA
 capabilities use standard Web APIs and must account for platform support.
 
-The completed PWA must provide its local interface without depending on a
-remote application service. The persistence mechanism, browser storage APIs,
-schema, data lifecycle, and user-controlled export path remain undecided.
+The completed PWA is intended to provide its local interface without depending
+on a remote application service. The persistence mechanism, browser storage
+APIs, schema, data lifecycle, and user-controlled export path have not yet been
+decided.
 
 ### Service-Worker Cache Design
 
@@ -144,9 +150,9 @@ MLink PWA
 MLink is hard local-first. Its essential business logic executes locally, and
 its authoritative user data remains under the user's control. Remote systems
 can provide discovery, signalling, relaying, synchronization, notification
-delivery, or other network capabilities, but remain non-authoritative
-infrastructure. Peer-to-peer describes one way MLink devices exchange data; it
-does not define the local-first guarantee.
+delivery, or other network capabilities, but they remain non-authoritative
+infrastructure. Peer-to-peer describes one way MLink devices exchange data;
+it does not define the local-first guarantee.
 
 The local application boundary is distinct from the external peer boundary:
 
@@ -167,8 +173,9 @@ Users can create and update an MLink profile. A user's own profile is stored
 locally on the device by the MLink PWA. The persistence mechanism has not yet
 been decided.
 
-Users can share profiles with other MLink users and view profiles other users
-share with them. The information included in a profile has not yet been decided.
+Users can share their profiles with other MLink users and view profiles that
+other users share with them. The information included in a profile has not yet
+been decided.
 
 ### Messaging
 
@@ -176,5 +183,5 @@ Users can send and receive private messages with other MLink users. Message
 history is stored locally on the user's device.
 
 The installed PWA can integrate with platform notifications where supported.
-How messages or notifications reach a user while MLink is inactive, how users
-connect, and how messages are encrypted remain open decisions.
+How messages or notifications reach a user while MLink is not active, how
+users connect, and how messages are encrypted have not yet been decided.
