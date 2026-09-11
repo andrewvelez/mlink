@@ -6,6 +6,7 @@
       "name": "mlink",
       "dependencies": {
         "@picocss/pico": "^2.1.1",
+        "hono": "^4.13.7",
         "htmx.org": "4.0.0-beta6",
         "workbox-build": "^7.4.1",
       },
@@ -438,6 +439,8 @@
     "has-tostringtag": ["has-tostringtag@1.0.2", "", { "dependencies": { "has-symbols": "^1.0.3" } }, "sha512-NqADB8VjPFLM2V0VvHUewwwsw0ZWBaIdgo+ieHtK3hasLz4qeCRjYcqfB6AQrBggRKppKF8L52/VqdVsO47Dlw=="],
 
     "hasown": ["hasown@2.0.4", "", { "dependencies": { "function-bind": "^1.1.2" } }, "sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A=="],
+
+    "hono": ["hono@4.13.7", "", {}, "sha512-c8/gF9ac8Y78/agExVocyLevgR+JlpNB444Py0FSX8pJoPdYUfUzRcXtYEYGwt6l19qIlVZPN5Mfsw9jFShmQQ=="],
 
     "htmx.org": ["htmx.org@4.0.0-beta6", "", { "bin": { "upgrade-check": "dist/scripts/upgrade-check.js" } }, "sha512-se3PisNRdv7g988rKSOqsM6y/nB+7HOI8RrJYoRuK01nY1+uDBFLgdQEzLVXITLlXblvyOBZOu30hDu69keSfw=="],
 

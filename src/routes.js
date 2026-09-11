@@ -25,7 +25,7 @@ function asset(path) {
   return new Response(Bun.file(path));
 }
 
-export const files = {
+export const routes = {
   "/": { GET: home },
   "/home": { GET: home },
   "/about": { GET: about },

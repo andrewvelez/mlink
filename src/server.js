@@ -4,12 +4,12 @@
  * @description Serves the embedded Link-Up PWA from its standalone executable.
  */
 
-import { files } from "./files.js";
+import { routes } from "./routes.js";
 
 const server = Bun.serve({
   hostname: "127.0.0.1",
   port: 3000,
-  routes: files,
+  routes: routes,
 });
 
 console.log(`MLink running at ${server.url}`);
