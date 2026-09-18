@@ -53,7 +53,7 @@ async function loadServiceWorker() {
   globalThis.fetch = fetchMock;
   globalThis.self = serviceWorkerScope;
 
-  await import(`../src/sw.js?test=${importNumber++}`);
+  await import(`../src/web/sw.js?test=${importNumber++}`);
 
   return {
     cache,

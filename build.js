@@ -10,14 +10,14 @@ import { join } from "node:path";
 import { injectManifest } from "workbox-build";
 
 const sourceDirectory = join(import.meta.dir, "src");
-const staticDirectory = join(import.meta.dir, "static");
+const webDirectory = join(sourceDirectory, "web");
+const externalDirectory = join(sourceDirectory, "external");
 const outputDirectory = join(import.meta.dir, "dist");
 const executablePath = join(outputDirectory, "mlink");
 
 export function getAppVersion() {
   const pkg = JSON.parse(readFileSync("package.json", "utf8"));
-  const baseVersion = pkg?.baseVersion;
-  return baseVersion + '.' + new Date().toISOString().slice(0, 10).replaceAll("-", "");
+  return pkg?.baseVersion + '.' + new Date().toISOString().slice(0, 10).replaceAll("-", "");
 }
 
 function clean() {
@@ -33,27 +33,27 @@ function insertSWCacheVersion() {
   writeFileSync(join(outputDirectory, "sw.js"), swText.replace("__CACHE_VERSION__", getAppVersion()));
 }
 
-function copyStaticFiles() {
+function copyBrowserFiles() {
   mkdirSync(outputDirectory, { recursive: true });
 
   for (const filename of ["app.js", "home.html", "about.html", "manifest.json"]) {
-    copyFileSync(join(sourceDirectory, filename), join(outputDirectory, filename));
+    copyFileSync(join(webDirectory, filename), join(outputDirectory, filename));
   }
-  cpSync(staticDirectory, join(outputDirectory, "static"), {
-    filter: (source) => source !== join(staticDirectory, "js/pico-css.js"),
-    recursive: true,
-  });
-  copyFileSync(
-    join(import.meta.dir, "node_modules/@picocss/pico/css/pico.cyan.min.css"),
-    join(outputDirectory, "static/styles/pico.cyan.min.css"),
-  );
+  for (const directory of ["icons", "styles"]) {
+    cpSync(join(webDirectory, directory), join(outputDirectory, "static", directory), {
+      recursive: true,
+    });
+  }
+  mkdirSync(join(outputDirectory, "static/js"), { recursive: true });
+  copyFileSync(join(externalDirectory, "htmx.min.js"), join(outputDirectory, "static/js/htmx.min.js"));
+  copyFileSync(join(externalDirectory, "pico.cyan.min.css"), join(outputDirectory, "static/styles/pico.cyan.min.css"));
 }
 
 async function bundleManifest() {
   const { warnings } = await injectManifest({
     globDirectory: outputDirectory,
     globPatterns: ["**/*.{html,js,json,css,svg,png}"],
-    swSrc: join(sourceDirectory, "sw.js"),
+    swSrc: join(webDirectory, "sw.js"),
     swDest: join(outputDirectory, "sw.js"),
   });
 
@@ -67,7 +67,7 @@ async function bundle() {
 
   try {
     result = await Bun.build({
-      entrypoints: [join(sourceDirectory, "server.js")],
+      entrypoints: [join(sourceDirectory, "server/server.js")],
       compile: { outfile: executablePath },
       naming: {
         asset: "[name].[ext]",
@@ -88,7 +88,7 @@ async function bundle() {
 
 async function build() {
   clean();
-  copyStaticFiles();
+  copyBrowserFiles();
   await bundleManifest();
   insertSWCacheVersion();
   await bundle();
@@ -111,7 +111,7 @@ async function test() {
 
 async function start() {
   await build();
-  await import("./src/server.js");
+  await import("./src/server/server.js");
 }
 
 const commands = {

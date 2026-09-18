@@ -48,3 +48,4 @@
 ## Misc
 
 - When specifically asked to check the project or files for errors, group all errors related to syntax up front to and correct immediately before proceeding.
+- Specific saved metadata created by Codex extension that is specific to this repository can be saved in <project_root>/.vscode/codex/

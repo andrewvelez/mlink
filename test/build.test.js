@@ -25,7 +25,7 @@ const fixtureDirectories = [];
 function createFixture() {
   const fixtureDirectory = mkdtempSync(join(tmpdir(), "mlink-build-test-"));
 
-  for (const path of ["build.js", "package.json", "src", "static"]) {
+  for (const path of ["build.js", "package.json", "src"]) {
     cpSync(join(projectDirectory, path), join(fixtureDirectory, path), {
       recursive: true,
     });
@@ -138,7 +138,7 @@ describe("build", () => {
 
   test("fails when the service-worker cache placeholder is missing", async () => {
     const fixtureDirectory = createFixture();
-    const serviceWorkerPath = join(fixtureDirectory, "src", "sw.js");
+    const serviceWorkerPath = join(fixtureDirectory, "src", "web", "sw.js");
     const serviceWorker = readFileSync(serviceWorkerPath, "utf8").replace(
       "__CACHE_VERSION__",
       "missing-version",

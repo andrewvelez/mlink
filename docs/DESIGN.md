@@ -23,8 +23,10 @@ VPS deployment. It embeds the completed PWA assets and serves them through its
 local HTTP routes. Its current host listens on `127.0.0.1:3000`; any public
 VPS-facing proxy or TLS arrangement is outside this project's current design.
 
-Application pages, the manifest, the service worker, and the executable host
-source live under `src/`. Directly copied browser assets live under `static/`.
+All shipped application source lives under `src/`, organized by responsibility:
+`web/` contains the browser application, `external/` contains third-party assets,
+and `server/` contains the executable host. The build preserves the existing
+browser asset URLs under `/static/`.
 `dist/` is generated build output and is never edited directly.
 
 #### Local-First
@@ -74,7 +76,7 @@ It returns `baseVersion.YYYYMMDD`, using the UTC date from `package.json`'s
 
 #### Current Regression
 
-The current `src/sw.js` does not meet this design: it is network-first for
+The current `src/web/sw.js` does not meet this design: it is network-first for
 handled shell and navigation requests, has no one-year expiry metadata, and
 does not version `app.js` or the service-worker registration URL with
 `getAppVersion()`. Restoring the required behavior is tracked as a high-priority
@@ -110,7 +112,7 @@ MLink PWA
 2. Copy the PWA pages, manifest, and static assets into `dist/`.
 3. Inject the Workbox asset manifest into `dist/sw.js`.
 4. Replace the service-worker cache-version placeholder with `getAppVersion()`.
-5. Compile `src/server.js` and its route-embedded assets into `dist/mlink`.
+5. Compile `src/server/server.js` and its route-embedded assets into `dist/mlink`.
 
 `bun run start` performs the same build and starts the executable host source.
 `bun run test` builds first, then runs the Bun test suite.
@@ -126,17 +128,21 @@ MLink PWA
 ├── docs/
 │   └── DESIGN.md
 ├── src/
-│   ├── about.html
-│   ├── app.js
-│   ├── home.html
-│   ├── manifest.json
-│   ├── routes.js
-│   ├── server.js
-│   └── sw.js
-├── static/
-│   ├── icons/
-│   ├── js/
-│   └── styles/
+│   ├── web/
+│   │   ├── about.html
+│   │   ├── app.js
+│   │   ├── home.html
+│   │   ├── manifest.json
+│   │   ├── sw.js
+│   │   ├── icons/
+│   │   └── styles/
+│   │       └── global.css
+│   ├── external/
+│   │   ├── htmx.min.js
+│   │   └── pico.cyan.min.css
+│   └── server/
+│       ├── routes.js
+│       └── server.js
 ├── test/
 │   ├── app.test.js
 │   ├── build.test.js
