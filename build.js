@@ -1,39 +1,53 @@
 #!/usr/bin/env bun
 /**
- * @license SPDX-License-Identifier: MIT
  * @author Andrew Velez 2026
- * @desc Builds and serves Link-Up's browser PWA assets with Bun.
+ * @license SPDX-License-Identifier: MIT
+ * @description Builds and serves Link-Up's browser PWA assets with Bun.
  */
 
 import { copyFileSync, cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { injectManifest } from "workbox-build";
 
-const sourceDirectory = join(import.meta.dir, "src");
-const webDirectory = join(sourceDirectory, "web");
-const externalDirectory = join(sourceDirectory, "external");
-const outputDirectory = join(import.meta.dir, "dist");
-const executablePath = join(outputDirectory, "mlink");
+const buildData = {
+  sourceDirectory: join(import.meta.dir, "src"),
+  webDirectory: join(import.meta.dir, "src/web"),
+  externalDirectory: join(import.meta.dir, "src/external"),
+  outputDirectory: join(import.meta.dir, "dist"),
+  executablePath: join(import.meta.dir, "dist/mlink"),
+  commands: {
+    clean,
+    build,
+    test,
+    start,
+  },
+};
 
 export function getAppVersion() {
-  const pkg = JSON.parse(readFileSync("package.json", "utf8"));
-  return pkg?.baseVersion + '.' + new Date().toISOString().slice(0, 10).replaceAll("-", "");
+  const pkg = JSON.parse(readFileSync(join(import.meta.dir, "package.json"), "utf8"));
+  if (typeof pkg?.baseVersion !== "string" || !pkg.baseVersion.trim()) {
+    throw new Error("package.json must contain a non-empty baseVersion string.");
+  }
+  return pkg.baseVersion + '.' + new Date().toISOString().slice(0, 10).replaceAll("-", "");
 }
 
 function clean() {
+  const { outputDirectory } = buildData;
   rmSync(outputDirectory, { force: true, recursive: true });
 }
 
-function insertSWCacheVersion() {
+function insertSWCacheVersion(version) {
+  const { outputDirectory } = buildData;
   const swText = readFileSync(join(outputDirectory, "sw.js"), "utf8");
   if (!swText.includes("__CACHE_VERSION__")) {
     throw new Error("The service-worker cache-version placeholder is missing.");
   }
 
-  writeFileSync(join(outputDirectory, "sw.js"), swText.replace("__CACHE_VERSION__", getAppVersion()));
+  writeFileSync(join(outputDirectory, "sw.js"), swText.replace("__CACHE_VERSION__", version));
 }
 
 function copyBrowserFiles() {
+  const { webDirectory, externalDirectory, outputDirectory } = buildData;
   mkdirSync(outputDirectory, { recursive: true });
 
   for (const filename of ["app.js", "home.html", "about.html", "manifest.json"]) {
@@ -50,6 +64,7 @@ function copyBrowserFiles() {
 }
 
 async function bundleManifest() {
+  const { webDirectory, outputDirectory } = buildData;
   const { warnings } = await injectManifest({
     globDirectory: outputDirectory,
     globPatterns: ["**/*.{html,js,json,css,svg,png}"],
@@ -63,34 +78,27 @@ async function bundleManifest() {
 }
 
 async function bundle() {
-  let result, error;
+  const { sourceDirectory, executablePath } = buildData;
+  const result = await Bun.build({
+    entrypoints: [join(sourceDirectory, "server/server.js")],
+    compile: { outfile: executablePath },
+    naming: {
+      asset: "[name].[ext]",
+      entry: "[name].[ext]",
+    },
+  });
 
-  try {
-    result = await Bun.build({
-      entrypoints: [join(sourceDirectory, "server/server.js")],
-      compile: { outfile: executablePath },
-      naming: {
-        asset: "[name].[ext]",
-        entry: "[name].[ext]",
-      },
-    });
-  } catch (err) {
-    console.error("Caught error: ", err);
-    error = err;
-  }
-
-  if (error || !result?.success) {
-    console.error("Errors during bundling: \n" + result?.logs?.join("\n"));
-    console.error("Build failed: ", error);
-    if (error) { throw error; } else { throw new Error(result?.logs?.join("\n")); }
+  if (!result.success) {
+    throw new Error(result.logs.join("\n") || "Build failed.");
   }
 }
 
 async function build() {
+  const version = getAppVersion();
   clean();
   copyBrowserFiles();
   await bundleManifest();
-  insertSWCacheVersion();
+  insertSWCacheVersion(version);
   await bundle();
 }
 
@@ -114,17 +122,11 @@ async function start() {
   await import("./src/server/server.js");
 }
 
-const commands = {
-  clean,
-  build,
-  test,
-  start,
-};
-
 /**
  * @description build.js is a module and a bun entry point, we process the command passed to build.js
  */
 async function main() {
+  const { commands } = buildData;
   const scriptCommand = process.argv[2];
 
   if (!scriptCommand || !Object.hasOwn(commands, scriptCommand)) {
@@ -136,4 +138,6 @@ async function main() {
   await commands[scriptCommand]();
 }
 
-await main();
+if (import.meta.main) {
+  await main();
+}
