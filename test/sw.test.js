@@ -40,9 +40,9 @@ async function loadServiceWorker() {
   const serviceWorkerScope = {
     location: new URL("https://mlink.test/app/sw.js"),
     __WB_MANIFEST: [
-      { url: "app.js" },
+      { url: "js/app.js" },
       { url: "index.html" },
-      { url: "static/styles/global.css" },
+      { url: "styles/global.css" },
     ],
     addEventListener: mock((type, listener) => listeners.set(type, listener)),
     skipWaiting: mock(async () => {}),
@@ -93,7 +93,7 @@ function shellRequest() {
   return {
     method: "GET",
     mode: "same-origin",
-    url: "https://mlink.test/app/app.js",
+    url: "https://mlink.test/app/js/app.js",
   };
 }
 
@@ -122,9 +122,9 @@ describe("service worker", () => {
       "mlink-__CACHE_VERSION__",
     );
     expect(context.cache.addAll).toHaveBeenCalledWith([
-      "https://mlink.test/app/app.js",
+      "https://mlink.test/app/js/app.js",
       "https://mlink.test/app/index.html",
-      "https://mlink.test/app/static/styles/global.css",
+      "https://mlink.test/app/styles/global.css",
     ]);
     expect(calls).toEqual(["cache", "skipWaiting"]);
   });

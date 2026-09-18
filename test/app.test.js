@@ -69,7 +69,7 @@ async function loadApp({
   globalThis.window = window;
   globalThis.navigator = navigator;
 
-  await import(`../src/web/app.js?test=${importNumber++}`);
+  await import(`../src/web/js/app.js?test=${importNumber++}`);
 
   return {
     shareButton,

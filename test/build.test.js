@@ -8,7 +8,6 @@ import { afterEach, describe, expect, test } from "bun:test";
 import {
   cpSync,
   existsSync,
-  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -89,20 +88,7 @@ describe("build", () => {
     const result = await runBuildScript(createFixture(), "unknown");
 
     expect(result.exitCode).toBe(1);
-    expect(result.stderr).toContain("Usage: bun run <clean|build|test|start>");
-  });
-
-  test("removes existing build output", async () => {
-    const fixtureDirectory = createFixture();
-    const staleFile = join(fixtureDirectory, "dist", "stale.txt");
-
-    mkdirSync(dirname(staleFile), { recursive: true });
-    writeFileSync(staleFile, "stale");
-
-    const result = await runBuildScript(fixtureDirectory, "clean");
-
-    expect(result.exitCode).toBe(0);
-    expect(existsSync(join(fixtureDirectory, "dist"))).toBe(false);
+    expect(result.stderr).toContain("Usage: bun run <build|test|start>");
   });
 
   test("builds the complete browser application", async () => {
@@ -112,12 +98,13 @@ describe("build", () => {
     expect(result.exitCode).toBe(0);
 
     for (const path of [
-      "app.js",
+      "js/app.js",
       "home.html",
       "about.html",
       "manifest.json",
-      "static/styles/global.css",
-      "static/styles/pico.cyan.min.css",
+      "styles/global.css",
+      "external/pico.cyan.min.css",
+      "external/htmx.min.js",
       "sw.js",
       "mlink",
     ]) {
@@ -170,7 +157,7 @@ describe("build", () => {
       const serverUrl = await readServerUrl(child.stdout);
       const pageResponse = await fetch(serverUrl);
       const headResponse = await fetch(
-        new URL("static/styles/global.css", serverUrl),
+        new URL("styles/global.css", serverUrl),
         { method: "HEAD" },
       );
       const postResponse = await fetch(serverUrl, { method: "POST" });

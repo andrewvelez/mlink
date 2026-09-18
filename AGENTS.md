@@ -14,11 +14,6 @@
   > `bun install`
   >
 
-* Remove project build artifacts
-  >
-  > `bun run clean` **or** `bun build.js clean`
-  >
-
 * Bundle project for production deployment
   >
   > `bun run build` **or** `bun build.js build`
@@ -44,6 +39,8 @@
 - Every new source file that supports comments should contain a valid (meaning JSDoc-like) header comment with at least these properties: author (Andrew Velez 2026), the license tag (MIT), and brief description.
 - Production non-test code shouldn't be modified solely to aid in the construction of a unit test.
 - Leave unresolved architecture decisions unresolved; do not make assumptions or try to fix anything beyond what is asked for in the prompt.
+- Prefer constructs that improve readability of code.
+- Prefer dot notation over destructuring.
 
 ## Misc
 

@@ -24,9 +24,9 @@ local HTTP routes. Its current host listens on `127.0.0.1:3000`; any public
 VPS-facing proxy or TLS arrangement is outside this project's current design.
 
 All shipped application source lives under `src/`, organized by responsibility:
-`web/` contains the browser application, `external/` contains third-party assets,
-and `server/` contains the executable host. The build preserves the existing
-browser asset URLs under `/static/`.
+`web/` contains the browser application, including third-party assets under
+`web/external/`, and `server/` contains the executable host. The build copies
+`web/` into `dist/`, preserving its directory layout for browser asset URLs.
 `dist/` is generated build output and is never edited directly.
 
 #### Local-First
@@ -130,16 +130,17 @@ MLink PWA
 ├── src/
 │   ├── web/
 │   │   ├── about.html
-│   │   ├── app.js
 │   │   ├── home.html
 │   │   ├── manifest.json
 │   │   ├── sw.js
 │   │   ├── icons/
+│   │   ├── js/
+│   │   │   └── app.js
+│   │   ├── external/
+│   │   │   ├── htmx.min.js
+│   │   │   └── pico.cyan.min.css
 │   │   └── styles/
 │   │       └── global.css
-│   ├── external/
-│   │   ├── htmx.min.js
-│   │   └── pico.cyan.min.css
 │   └── server/
 │       ├── routes.js
 │       └── server.js

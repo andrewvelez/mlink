@@ -4,7 +4,6 @@
   "description": "A local-first Progressive Web App.",
   "type": "module",
   "scripts": {
-    "clean": "bun build.js clean",
     "build": "bun build.js build",
     "test": "bun build.js test",
     "start": "bun build.js start"

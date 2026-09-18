@@ -17,7 +17,6 @@ bun install
 ## Bun.js build scripts
 
 ```bash
-bun run clean
 bun run build
 bun run test
 bun run start

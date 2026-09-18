@@ -9,5 +9,5 @@
     "types": ["bun"]
   },
   "include": ["build.js", "src/**/*.js"],
-  "exclude": ["dist", "node_modules", "src/external"]
+  "exclude": ["dist", "node_modules", "src/web/external"]
 }
