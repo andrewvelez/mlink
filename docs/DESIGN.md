@@ -53,9 +53,9 @@ logic, and authoritative user data remain local. Browser and installed-PWA
 capabilities use standard Web APIs and must account for platform support.
 
 The completed PWA is intended to provide its local interface without depending
-on a remote application service. The persistence mechanism, browser storage
-APIs, schema, data lifecycle, and user-controlled export path have not yet been
-decided.
+on a remote application service. Local application data will be stored in
+IndexedDB through [Dexie](https://dexie.org/). The schema, data lifecycle, and
+user-controlled export path have not yet been decided.
 
 ### Service-Worker Cache Design
 
@@ -174,21 +174,20 @@ it does not define the local-first guarantee.
 The local application boundary is distinct from the external peer boundary:
 
 ```text
-MLink PWA ↔ standard Web APIs ↔ on-device storage
+MLink PWA ↔ Dexie ↔ IndexedDB on-device storage
 
 MLink peer ↔ untrusted network and signalling/relay infrastructure ↔ MLink peer
 ```
 
-The persistence implementation and selected browser storage APIs remain open
-decisions.
+Dexie is the selected wrapper for IndexedDB. The integration between local
+application storage and Converse's message persistence remains an open decision.
 
 ## Product Features
 
 ### Profiles
 
 Users can create and update an MLink profile. A user's own profile is stored
-locally on the device by the MLink PWA. The persistence mechanism has not yet
-been decided.
+locally on the device by the MLink PWA using Dexie over IndexedDB.
 
 Users can share their profiles with other MLink users and view profiles that
 other users share with them. The information included in a profile has not yet
@@ -196,9 +195,12 @@ been decided.
 
 ### Messaging
 
-Users can send and receive private messages with other MLink users. Message
-history is stored locally on the user's device.
+Users can send and receive private messages with other MLink users using
+[Converse](https://conversejs.org/docs/), the selected browser XMPP library.
+Message history is stored locally on the user's device. XMPP messaging
+infrastructure must preserve the local-authority boundary described above.
 
 The installed PWA can integrate with platform notifications where supported.
-How messages or notifications reach a user while MLink is not active, how
-users connect, and how messages are encrypted have not yet been decided.
+How messages or notifications reach a user while MLink is not active, the XMPP
+server and connection configuration, and how messages are encrypted have not
+yet been decided.
