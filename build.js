@@ -5,11 +5,9 @@
  * @description Builds and serves Link-Up's browser PWA assets with Bun.
  */
 
-import { cpSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { injectManifest } from "workbox-build";
-
-process.chdir(import.meta.dir);
 
 const buildData = {
   sourceDirectory: "./src",
@@ -72,6 +70,7 @@ async function bundle() {
 }
 
 async function build() {
+  rmSync(buildData.outputDirectory, { recursive: true, force: true });
   cpSync(buildData.webDirectory, buildData.outputDirectory, { recursive: true });
   await bundleManifest();
   replaceCacheVersion();
@@ -97,6 +96,12 @@ async function start() {
  * @description build.js is a module and a bun entry point, we process the command passed to build.js
  */
 async function main() {
+  if (!import.meta.main) {
+    throw new Error("build.js must be run directly, not imported.");
+  }
+
+  process.chdir(import.meta.dir);
+
   const commands = buildData.commands;
   const scriptCommand = process.argv[2];
 

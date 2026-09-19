@@ -108,14 +108,24 @@ MLink PWA
 
 `bun run build` performs these stages in order:
 
-1. Delete `dist/`.
-2. Copy the PWA pages, manifest, and static assets into `dist/`.
+1. Delete `dist/` if it exists.
+2. Copy the PWA pages, manifest, and static assets from `src/web/` into `dist/`.
 3. Inject the Workbox asset manifest into `dist/sw.js`.
 4. Replace the service-worker cache-version placeholder with `getAppVersion()`.
 5. Compile `src/server/server.js` and its route-embedded assets into `dist/mlink`.
 
-`bun run start` performs the same build and starts the executable host source.
-`bun run test` builds first, then runs the Bun test suite.
+`bun run start` performs the same build and starts `src/server/server.js` for
+local development. Neither `build` nor `start` runs tests.
+
+**Before production deployment, run `bun run test`.** This command performs the
+same build, then runs the Bun test suite and returns its exit code. A build
+failure stops the command before tests run. Deploy the resulting `dist/mlink`
+only when the command succeeds (exit code 0); do not deploy after a build or
+test failure. No separate build is needed after a successful test run.
+
+Bare `bun test` runs the test suite without the build step provided by
+`bun run test`. None of these commands deploys the executable; deployment is a
+separate step.
 
 ## Project Structure
 

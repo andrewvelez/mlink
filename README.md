@@ -16,15 +16,20 @@ bun install
 
 ## Bun.js build scripts
 
-```bash
-bun run build
-bun run test
-bun run start
-```
+| Command | Purpose |
+| --- | --- |
+| `bun run build` | Build `dist/mlink`, the full-stack executable that embeds and serves the PWA. Does not run tests. |
+| `bun run test` | Build `dist/mlink`, then run the Bun test suite. Use this before production deployment. |
+| `bun run start` | Build and start the local host from source. Does not run tests. |
 
-`bun run build` produces `dist/mlink`, the full-stack executable that embeds
-and serves the PWA. `bun run start` builds and starts the local host. `bun run
-test` builds first, then runs the Bun test suite.
+### Before production deployment
+
+Run `bun run test` and deploy the resulting `dist/mlink` only if the command
+succeeds (exit code 0). A successful `bun run build` alone does not establish
+that tests pass. No separate build is needed after a successful test run.
+
+Use `bun run test`, not bare `bun test`, for this workflow: the package script
+builds before testing. None of these commands deploys the executable.
 
 ## Current implementation status
 
