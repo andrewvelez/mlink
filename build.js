@@ -17,14 +17,13 @@ import { injectManifest } from "workbox-build";
  */
 
 /**
- * @typedef {Object} BuildData
+ * @typedef {Object} BuildPaths
  * @property {string} sourceDirectory The source-code directory.
  * @property {string} webDirectory The browser-asset directory.
  * @property {string} outputDirectory The build-output directory.
  * @property {string} executablePath The compiled server executable path.
  * @property {string} swSrc The source service-worker path.
  * @property {string} swDest The output service-worker path.
- * @property {BuildCommands} commands The supported command handlers.
  */
 
 /**
@@ -48,19 +47,14 @@ import { injectManifest } from "workbox-build";
  * @property {Promise<number>} exited The test process's eventual exit code.
  */
 
-/** @type {BuildData} Application build paths and command handlers. */
-const buildData = {
+/** @type {BuildPaths} Application build paths. */
+const buildPaths = {
   sourceDirectory: "./src",
   webDirectory: "./src/web",
   outputDirectory: "./dist",
   executablePath: "./dist/mlink",
   swSrc: "./src/web/sw.js",
   swDest: "./dist/sw.js",
-  commands: {
-    build,
-    test,
-    start,
-  },
 };
 
 /**
@@ -86,7 +80,7 @@ function getAppVersion() {
  */
 function replaceCacheVersion() {
   /** @type {string} Output service-worker path. */
-  const swPath = buildData.swDest;
+  const swPath = buildPaths.swDest;
   /** @type {string} Output service-worker source text. */
   const swText = readFileSync(swPath, "utf8");
   if (!swText.includes("__CACHE_VERSION__")) {
@@ -104,10 +98,10 @@ function replaceCacheVersion() {
 async function bundleManifest() {
   /** @type {ManifestResult} Workbox manifest-injection result. */
   const { warnings } = await injectManifest({
-    globDirectory: buildData.outputDirectory,
+    globDirectory: buildPaths.outputDirectory,
     globPatterns: ["**/*.{html,js,json,css,svg,png}"],
-    swSrc: buildData.swSrc,
-    swDest: buildData.swDest,
+    swSrc: buildPaths.swSrc,
+    swDest: buildPaths.swDest,
   });
 
   if (warnings.length > 0) {
@@ -123,8 +117,8 @@ async function bundleManifest() {
 async function bundle() {
   /** @type {BundleResult} Bun compilation result. */
   const result = await Bun.build({
-    entrypoints: [join(buildData.sourceDirectory, "server/server.js")],
-    compile: { outfile: buildData.executablePath },
+    entrypoints: [join(buildPaths.sourceDirectory, "server/server.js")],
+    compile: { outfile: buildPaths.executablePath },
     naming: {
       asset: "[name].[ext]",
       entry: "[name].[ext]",
@@ -137,24 +131,26 @@ async function bundle() {
 }
 
 /**
+ * @type {function(): Promise<void>}
  * @description Creates a clean production build of the complete application.
  * @returns {Promise<void>} Resolves after all build steps succeed.
  * @throws {Error} If any build step fails.
  */
-async function build() {
-  rmSync(buildData.outputDirectory, { recursive: true, force: true });
-  cpSync(buildData.webDirectory, buildData.outputDirectory, { recursive: true });
+const build = async function build() {
+  rmSync(buildPaths.outputDirectory, { recursive: true, force: true });
+  cpSync(buildPaths.webDirectory, buildPaths.outputDirectory, { recursive: true });
   await bundleManifest();
   replaceCacheVersion();
   await bundle();
-}
+};
 
 /**
+ * @type {function(): Promise<void>}
  * @description Builds the application and runs its test suite.
  * @returns {Promise<void>} Resolves after the test process exits.
  * @throws {Error} If the build fails or the test process cannot be started.
  */
-async function test() {
+const test = async function test() {
   await build();
 
   /** @type {TestRunner} Spawned test process. */
@@ -163,17 +159,25 @@ async function test() {
     stderr: "inherit",
   });
   process.exitCode = await testRunner.exited;
-}
+};
 
 /**
+ * @type {function(): Promise<void>}
  * @description Builds the application and starts the development server.
  * @returns {Promise<void>} Resolves after the server module loads.
  * @throws {Error} If the build or server-module import fails.
  */
-async function start() {
+const start = async function start() {
   await build();
   await import("./src/server/server.js");
-}
+};
+
+/** @type {BuildCommands} Supported command handlers. */
+const buildCommands = {
+  build,
+  test,
+  start,
+};
 
 /**
  * @description Processes the requested command when build.js runs as Bun's entry point.
@@ -187,18 +191,16 @@ async function main() {
 
   process.chdir(import.meta.dir);
 
-  /** @type {BuildCommands} Supported command handlers. */
-  const commands = buildData.commands;
   /** @type {(string|undefined)} Command requested on the command line. */
   const scriptCommand = process.argv[2];
 
-  if (!scriptCommand || !Object.hasOwn(commands, scriptCommand)) {
-    console.error(`Usage: bun run <${Object.keys(commands).join("|")}>`);
+  if (!scriptCommand || !Object.hasOwn(buildCommands, scriptCommand)) {
+    console.error(`Usage: bun run <${Object.keys(buildCommands).join("|")}>`);
     process.exitCode = 1;
     return;
   }
 
-  await commands[scriptCommand]();
+  await buildCommands[scriptCommand]();
 }
 
 await main();

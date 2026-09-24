@@ -2,14 +2,14 @@
   "name": "mlink",
   "version": "1.0.0",
   "description": "A local-first Progressive Web App.",
+  "license": "MIT",
+  "author": "Andrew Velez <andrewvelez@outlook.com>",
   "type": "module",
   "scripts": {
     "build": "bun build.js build",
     "test": "bun build.js test",
     "start": "bun build.js start"
   },
-  "author": "Andrew Velez 2026",
-  "license": "MIT",
   "devDependencies": {
     "@types/bun": "latest"
   },
