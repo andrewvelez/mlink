@@ -3,8 +3,7 @@
 ## Overview
 
 - MLink (formerly Link-Up) is a local-first progressive web app (PWA) for gay men.  It uses Bun.js as a bundler and package manager.  Aside from bundling, Bun is not used as the application's runtime.  The browser and the Web Platform (no TypeScript) are the application's runtime and technology stack.
-- The browser is the application runtime. In being local-first, every effort is made for the app to be 100% cached on the first page load.  This means all assets, javascript, everything that would be in a Bun full stack executable file (minus Bun).
-- The complete current browser build is emitted under `dist/`. Full-stack executable packaging is future work and is not currently implemented.
+- The browser is the application runtime for the PWA. The app is deployed as a Bun full stack executable.  The PWA will be cached 100% on the first page hit. The complete current browser build is emitted under `dist/`.
 - The current design direction for the project is in `docs/DESIGN.md`. Other documents within the docs folder may be out of date.
 
 ## Commands
@@ -19,7 +18,7 @@
   > `bun run build` **or** `bun build.js build`
   >
 
-* Build project and run all tests (tests are coming soon)
+* Build project and run all tests (tests are WIP)
   >
   > `bun run test` **or** `bun build.js test`
   >
@@ -31,19 +30,14 @@
 
 ## Code Style
 
-- If needed, the preference would be for you to ask questions to clarify the prompt before responding for all non-trivial tasks.
-- Keep responses pragmatic, idiomatic and as concise as possible.
-- Prefer changesets (total diff) with a minimum number of lines of code changed **to satisfy the task**; only change what is necessary.
-- Always ask for approval on your changeset summary before making any code/configuration changes.
-- Use standard Web and PWA APIs for browser capabilities and idiomatic Bun APIs for build tooling.
-- Every new source file should contain a valid JSDoc header with at least these properties: @author (Andrew Velez 2026), @license (MIT), and @description.
-- Non-test code shouldn't be modified solely to aid in the construction of a test.
-- Leave unresolved architecture decisions unresolved; do not make assumptions or try to fix anything beyond what is asked for in the prompt.  Only focus on the prompt in the narrowest sense.
-- In code:  correctness > readability > idiomatic.
-- Prefer dot notation over destructuring.
-- Fully document and type-annotate all source-file functions, parameters, return values, thrown errors, object shapes, and ambiguous declarations using standard, tool-neutral JSDoc; never use TypeScript syntax or TypeScript-specific type expressions.
+- Change only what the request requires. Prefer the smallest correct diff; stop and ask before adding scope.
+- Add author metadata to newly authored files. Use `Andrew Velez <andrewvelez@outlook.com>`, or `Andrew Velez` for public, served, or bundled files. Ask if the format cannot store attribution. New JavaScript files require `@author`, `@license MIT`, and `@description`.
+- Tests must use production interfaces. Do not alter non-test code solely to support tests without approval.
+- Follow architectural decisions established by the request, current code, or authoritative documentation. Ask about unresolved decisions.
+- Priority: correctness, readability, then idiom.
+- Use dot notation for known valid identifiers; otherwise use bracket notation.
+- Document new or modified JavaScript functions, object shapes, and ambiguous declarations with JSDoc. Use only one primitive or runtime constructor per type expression; describe unsupported types in prose. Do not add documentation retroactively.
 
 ## Misc
 
-- When specifically asked to check the project or files for errors, group all errors related to syntax up front to and correct immediately before proceeding.
-- Specific saved metadata created by Codex extension that is specific to this repository can be saved in <project_root>/.vscode/codex/
+- Specific saved metadata created by Codex extension that is specific to this repository can be saved in `<project_root>/.vscode/codex/`
