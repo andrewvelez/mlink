@@ -8,6 +8,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import {
   cpSync,
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -16,7 +17,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const projectDirectory = dirname(dirname(fileURLToPath(import.meta.url)));
 const fixtureDirectories = [];
@@ -91,11 +92,41 @@ describe("build", () => {
     expect(result.stderr).toContain("Usage: bun run <build|test|start>");
   });
 
+  test("rejects importing the build script as a module", async () => {
+    const fixtureDirectory = createFixture();
+    const buildScriptUrl = pathToFileURL(
+      join(fixtureDirectory, "build.js"),
+    ).href;
+    const child = Bun.spawn([
+      process.execPath,
+      "-e",
+      `await import(${JSON.stringify(buildScriptUrl)})`,
+    ], {
+      cwd: fixtureDirectory,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    const [stderr, exitCode] = await Promise.all([
+      new Response(child.stderr).text(),
+      child.exited,
+    ]);
+
+    expect(exitCode).not.toBe(0);
+    expect(stderr).toContain("build.js must be run directly, not imported.");
+  });
+
   test("builds the complete browser application", async () => {
     const fixtureDirectory = createFixture();
+    const outputDirectory = join(fixtureDirectory, "dist");
+    const staleOutputPath = join(outputDirectory, "stale.txt");
+
+    mkdirSync(outputDirectory);
+    writeFileSync(staleOutputPath, "stale output");
+
     const result = await runBuildScript(fixtureDirectory, "build");
 
     expect(result.exitCode).toBe(0);
+    expect(existsSync(staleOutputPath)).toBe(false);
 
     for (const path of [
       "js/app.js",
@@ -123,6 +154,19 @@ describe("build", () => {
     );
   });
 
+  test("fails when the package version is missing", async () => {
+    const fixtureDirectory = createFixture();
+
+    writeFileSync(join(fixtureDirectory, "package.json"), "{}\n");
+
+    const result = await runBuildScript(fixtureDirectory, "build");
+
+    expect(result.exitCode).not.toBe(0);
+    expect(result.stderr).toContain(
+      "package.json must contain a non-empty version string.",
+    );
+  });
+
   test("fails when the service-worker cache placeholder is missing", async () => {
     const fixtureDirectory = createFixture();
     const serviceWorkerPath = join(fixtureDirectory, "src", "web", "sw.js");
@@ -140,6 +184,64 @@ describe("build", () => {
       "The service-worker cache-version placeholder is missing.",
     );
   });
+
+  test("fails when the server bundle cannot compile", async () => {
+    const fixtureDirectory = createFixture();
+    const serverPath = join(fixtureDirectory, "src", "server", "server.js");
+
+    writeFileSync(serverPath, "export const =;\n");
+
+    const result = await runBuildScript(fixtureDirectory, "build");
+
+    expect(result.exitCode).not.toBe(0);
+    expect(result.stderr).toContain("error");
+  });
+
+  test("the test command propagates the test runner exit code", async () => {
+    const fixtureDirectory = createFixture();
+    const regressionTestPath = join(fixtureDirectory, "regression.test.js");
+
+    writeFileSync(
+      regressionTestPath,
+      `import { expect, test } from "bun:test";
+
+test("fixture failure", () => {
+  expect(true).toBe(false);
+});
+`,
+    );
+
+    const result = await runBuildScript(fixtureDirectory, "test");
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout + result.stderr).toContain("fixture failure");
+  });
+
+  test("the start command serves from another working directory", async () => {
+    const fixtureDirectory = createFixture();
+    const child = Bun.spawn([
+      process.execPath,
+      join(fixtureDirectory, "build.js"),
+      "start",
+    ], {
+      cwd: tmpdir(),
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    const stderr = new Response(child.stderr).text();
+
+    try {
+      const serverUrl = await readServerUrl(child.stdout);
+      const response = await fetch(serverUrl);
+
+      expect(response.status).toBe(200);
+      expect(await response.text()).toContain("<title>Home</title>");
+    } finally {
+      child.kill();
+      await child.exited;
+      await stderr;
+    }
+  }, 15_000);
 
   test("the executable serves normal HTTP paths and rejects unsupported methods", async () => {
     const fixtureDirectory = createFixture();
