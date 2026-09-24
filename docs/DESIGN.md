@@ -68,9 +68,10 @@ reserved `{ createdAt, expiresAt }` metadata entry. `expiresAt` is one year
 after the cache is populated. A replacement cache must be complete before the
 previous release cache is removed.
 
-`getAppVersion()` in `build.js` is the single authoritative application version.
-It returns `baseVersion.YYYYMMDD`, using the UTC date from `package.json`'s
-`baseVersion`. The build and cache identity must use that exact value, and the
+The `version` property in `package.json` is the authoritative semantic
+application version. `getAppVersion()` in `build.js` returns
+`version+YYYYMMDD`, appending the UTC build date as SemVer build metadata. The
+build and cache identity must use that exact value, and the
 `app.js` and service-worker registration URLs must use
 `?v=${getAppVersion()}`.
 

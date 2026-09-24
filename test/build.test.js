@@ -119,7 +119,7 @@ describe("build", () => {
     expect(serviceWorker).not.toContain("__CACHE_VERSION__");
     expect(serviceWorker).not.toContain("self.__WB_MANIFEST");
     expect(serviceWorker).toMatch(
-      /const cacheName = cachePrefix \+ "1\.0\.\d{8}"/,
+      /const cacheName = cachePrefix \+ "1\.0\.0\+\d{8}"/,
     );
   });
 

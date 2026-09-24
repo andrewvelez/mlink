@@ -22,10 +22,14 @@ The data of other users for sharing/searching will be eventually consistently av
 
 ## Locality
 
+### Overview
+
+The application's geographic data and its real-time location state are different things. Place names, zip codes, and similar are static or change slowly. User coordinates and nearby-user search results may change continuously (e.g. someone uses the app while traveling in a car).
+
 ### Location library
 
 Tentatively, we'll be using Uber's H3 [https://h3geo.org/] for location-awareness.
 
-### User profile location
+### User profile location privacy
 
 The user's profile location (aka the user) must be obscured but still usable in a location search.  The amount of obscurity should be configurable.  There are potentially only two types of users when it comes to locality;  those who want to hide their location and those that do not.  Those that want to hide their location can be centered to the city-level location.  Everyone else can be geo-specific to within a few meters.

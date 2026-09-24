@@ -23,12 +23,18 @@ const buildData = {
   },
 };
 
+/**
+ * @description Combines the semantic application version with UTC date build metadata.
+ * @returns {string} The application version and date-based build number.
+ * @throws {Error} If package.json cannot be read, parsed, or lacks a version.
+ */
 function getAppVersion() {
   const pkg = JSON.parse(readFileSync("package.json", "utf8"));
-  if (typeof pkg?.baseVersion !== "string" || !pkg.baseVersion.trim()) {
-    throw new Error("package.json must contain a non-empty baseVersion string.");
+  if (typeof pkg?.version !== "string" || !pkg.version.trim()) {
+    throw new Error("package.json must contain a non-empty version string.");
   }
-  return pkg.baseVersion + '.' + new Date().toISOString().slice(0, 10).replaceAll("-", "");
+  const buildNumber = new Date().toISOString().slice(0, 10).replaceAll("-", "");
+  return `${pkg.version}+${buildNumber}`;
 }
 
 function replaceCacheVersion() {

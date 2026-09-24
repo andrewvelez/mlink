@@ -36,11 +36,12 @@
 - Prefer changesets (total diff) with a minimum number of lines of code changed **to satisfy the task**; only change what is necessary.
 - Always ask for approval on your changeset summary before making any code/configuration changes.
 - Use standard Web and PWA APIs for browser capabilities and idiomatic Bun APIs for build tooling.
-- Every new source file that supports comments should contain a valid (meaning JSDoc-like) header comment with at least these properties: author (Andrew Velez 2026), the license tag (MIT), and brief description.
-- Production non-test code shouldn't be modified solely to aid in the construction of a unit test.
-- Leave unresolved architecture decisions unresolved; do not make assumptions or try to fix anything beyond what is asked for in the prompt.
-- Prefer constructs that improve readability of code.
+- Every new source file should contain a valid JSDoc header with at least these properties: @author (Andrew Velez 2026), @license (MIT), and @description.
+- Non-test code shouldn't be modified solely to aid in the construction of a test.
+- Leave unresolved architecture decisions unresolved; do not make assumptions or try to fix anything beyond what is asked for in the prompt.  Only focus on the prompt in the narrowest sense.
+- In code:  correctness > readability > idiomatic.
 - Prefer dot notation over destructuring.
+- Fully document and type-annotate all source-file functions, parameters, return values, thrown errors, object shapes, and ambiguous declarations using standard, tool-neutral JSDoc; never use TypeScript syntax or TypeScript-specific type expressions.
 
 ## Misc
 

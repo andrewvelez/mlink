@@ -8,7 +8,7 @@ import { routes } from "./routes.js";
 
 const server = Bun.serve({
   hostname: "127.0.0.1",
-  port: 3000,
+  port: 0,
   routes: routes,
 });
 
