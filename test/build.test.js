@@ -147,42 +147,27 @@ describe("build", () => {
       "utf8",
     );
 
-    expect(serviceWorker).not.toContain("__CACHE_VERSION__");
     expect(serviceWorker).not.toContain("self.__WB_MANIFEST");
+    expect(serviceWorker).not.toContain("storage.googleapis.com");
+    expect(serviceWorker).not.toContain("importScripts(");
+    expect(serviceWorker).not.toContain('from"workbox-precaching"');
+    expect(serviceWorker).not.toContain('from "workbox-precaching"');
     expect(serviceWorker).toMatch(
-      /const cacheName = cachePrefix \+ "1\.0\.0\+\d{8}"/,
+      /"revision":"[a-f0-9]{32}","url":"home\.html"/,
     );
+    expect(existsSync(join(outputDirectory, "sw.bundle.js"))).toBe(false);
   });
 
-  test("fails when the package version is missing", async () => {
-    const fixtureDirectory = createFixture();
-
-    writeFileSync(join(fixtureDirectory, "package.json"), "{}\n");
-
-    const result = await runBuildScript(fixtureDirectory, "build");
-
-    expect(result.exitCode).not.toBe(0);
-    expect(result.stderr).toContain(
-      "package.json must contain a non-empty version string.",
-    );
-  });
-
-  test("fails when the service-worker cache placeholder is missing", async () => {
+  test("fails when the service worker cannot compile", async () => {
     const fixtureDirectory = createFixture();
     const serviceWorkerPath = join(fixtureDirectory, "src", "web", "sw.js");
-    const serviceWorker = readFileSync(serviceWorkerPath, "utf8").replace(
-      "__CACHE_VERSION__",
-      "missing-version",
-    );
 
-    writeFileSync(serviceWorkerPath, serviceWorker);
+    writeFileSync(serviceWorkerPath, "import {;\n");
 
     const result = await runBuildScript(fixtureDirectory, "build");
 
     expect(result.exitCode).not.toBe(0);
-    expect(result.stderr).toContain(
-      "The service-worker cache-version placeholder is missing.",
-    );
+    expect(result.stderr).toContain("error");
   });
 
   test("fails when the server bundle cannot compile", async () => {

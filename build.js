@@ -5,7 +5,7 @@
  * @description Builds and serves Link-Up's browser PWA assets with Bun.
  */
 
-import { cpSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { injectManifest } from "workbox-build";
 
@@ -17,48 +17,38 @@ import { injectManifest } from "workbox-build";
  * @property {string} outputDirectory The build-output directory.
  * @property {string} executablePath The compiled server executable path.
  * @property {string} swSrc The source service-worker path.
+ * @property {string} swBundle The intermediate bundled service-worker path.
  * @property {string} swDest The output service-worker path.
  */
-const buildPaths = {
+const buildPaths = Object.freeze({
   sourceDirectory: "./src",
   webDirectory: "./src/web",
   outputDirectory: "./dist",
   executablePath: "./dist/mlink",
   swSrc: "./src/web/sw.js",
+  swBundle: "./dist/sw.bundle.js",
   swDest: "./dist/sw.js",
-};
+});
 
+// #region Helper functions for building
 /**
- * @description Combines the semantic application version with UTC date build metadata.
- * @returns {string} The application version and date-based build number.
- * @throws {Error} If package.json cannot be read, parsed, or lacks a version.
+ * @description Bundles Workbox and the service-worker source for the browser.
+ * @returns {Promise} Resolves after bundling succeeds.
+ * @throws {Error} If Bun cannot bundle the service worker.
  */
-function getAppVersion() {
-  /** @type {Object} Parsed package metadata with an unvalidated version property. */
-  const pkg = JSON.parse(readFileSync("package.json", "utf8"));
-  if (typeof pkg?.version !== "string" || !pkg.version.trim()) {
-    throw new Error("package.json must contain a non-empty version string.");
-  }
-  /** @type {string} UTC date-based build number. */
-  const buildNumber = new Date().toISOString().slice(0, 10).replaceAll("-", "");
-  return `${pkg.version}+${buildNumber}`;
-}
+async function bundleServiceWorker() {
+  /** @type {Object} Bun compilation result containing success and logs properties. */
+  const result = await Bun.build({
+    entrypoints: [buildPaths.swSrc],
+    outdir: buildPaths.outputDirectory,
+    naming: { entry: "sw.bundle.js" },
+    target: "browser",
+    minify: true,
+  });
 
-/**
- * @description Replaces the service worker's cache-version placeholder with the application version.
- * @returns {undefined}
- * @throws {Error} If the service worker cannot be read or written, or lacks the placeholder.
- */
-function replaceCacheVersion() {
-  /** @type {string} Output service-worker path. */
-  const swPath = buildPaths.swDest;
-  /** @type {string} Output service-worker source text. */
-  const swText = readFileSync(swPath, "utf8");
-  if (!swText.includes("__CACHE_VERSION__")) {
-    throw new Error("The service-worker cache-version placeholder is missing.");
+  if (!result.success) {
+    throw new Error(result.logs.join("\n") || "Service-worker build failed.");
   }
-
-  writeFileSync(swPath, swText.replace("__CACHE_VERSION__", getAppVersion()));
 }
 
 /**
@@ -71,9 +61,11 @@ async function bundleManifest() {
   const { warnings } = await injectManifest({
     globDirectory: buildPaths.outputDirectory,
     globPatterns: ["**/*.{html,js,json,css,svg,png}"],
-    swSrc: buildPaths.swSrc,
+    swSrc: buildPaths.swBundle,
     swDest: buildPaths.swDest,
   });
+
+  rmSync(buildPaths.swBundle, { force: true });
 
   if (warnings.length > 0) {
     console.warn("Warnings encountered while injecting the manifest:", warnings.join("\n"));
@@ -100,8 +92,10 @@ async function bundle() {
     throw new Error(result.logs.join("\n") || "Build failed.");
   }
 }
+// #endregion
 
-/**
+// #region Build Command Functions
+/*
  * @type {Function}
  * @description Creates a clean production build of the complete application.
  * @returns {Promise} Resolves after all build steps succeed.
@@ -110,8 +104,8 @@ async function bundle() {
 const build = async () => {
   rmSync(buildPaths.outputDirectory, { recursive: true, force: true });
   cpSync(buildPaths.webDirectory, buildPaths.outputDirectory, { recursive: true });
+  await bundleServiceWorker();
   await bundleManifest();
-  replaceCacheVersion();
   await bundle();
 };
 
@@ -142,7 +136,9 @@ const start = async () => {
   await build();
   await import("./src/server/server.js");
 };
+// #endregion
 
+// #region Main script
 if (!import.meta.main) {
   throw new Error("build.js must be run directly, not imported.");
 }
@@ -157,3 +153,4 @@ if (cmdFunc) {
 } else {
   throw new Error(`Usage: bun run <${buildCommands.map(cmd => cmd.name).join("|")}>`);
 }
+// #endregion

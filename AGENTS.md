@@ -36,7 +36,7 @@
 - Follow architectural decisions established by the request, current code, or authoritative documentation. Ask about unresolved decisions.
 - Priority: correctness, readability, then idiom.
 - Use dot notation for known valid identifiers; otherwise use bracket notation.
-- Document new or modified JavaScript functions, object shapes, and ambiguous declarations with JSDoc. Use only one primitive or runtime constructor per type expression; describe unsupported types in prose. Do not add documentation retroactively.
+- Document new or modified JavaScript functions, object shapes, and ambiguous declarations with JSDoc. Describe unsupported types in prose.  Objects with known primitive properties can be annotated as such. Do not add documentation retroactively.
 
 ## Misc
 
