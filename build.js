@@ -107,7 +107,7 @@ async function bundle() {
  * @returns {Promise} Resolves after all build steps succeed.
  * @throws {Error} If any build step fails.
  */
-const build = async function build() {
+const build = async () => {
   rmSync(buildPaths.outputDirectory, { recursive: true, force: true });
   cpSync(buildPaths.webDirectory, buildPaths.outputDirectory, { recursive: true });
   await bundleManifest();
@@ -121,7 +121,7 @@ const build = async function build() {
  * @returns {Promise} Resolves after the test process exits.
  * @throws {Error} If the build fails or the test process cannot be started.
  */
-const test = async function test() {
+const test = async () => {
   await build();
 
   /** @type {Object} Spawned test process with an exited promise. */
@@ -138,28 +138,22 @@ const test = async function test() {
  * @returns {Promise} Resolves after the server module loads.
  * @throws {Error} If the build or server-module import fails.
  */
-const start = async function start() {
+const start = async () => {
   await build();
   await import("./src/server/server.js");
 };
 
-/**
- * Supported command handlers.
- * @type {Object}
- * @property {Function} build Builds the application.
- * @property {Function} test Builds and tests the application.
- * @property {Function} start Builds and starts the application.
- */
-const buildCommands = {
-  build,
-  test,
-  start,
-};
-
-
+if (!import.meta.main) {
+  throw new Error("build.js must be run directly, not imported.");
+}
 process.chdir(import.meta.dir);
 
-const scriptCommand = process.argv[2];
+const buildCommands = [build, test, start];
+const argvCommand = process.argv[2];
+const cmdFunc = buildCommands.find(cmdFunc => cmdFunc.name === argvCommand);
 
-await buildCommands[scriptCommand]();
-
+if (cmdFunc) {
+  await cmdFunc();
+} else {
+  throw new Error(`Usage: bun run <${buildCommands.map(cmd => cmd.name).join("|")}>`);
+}
