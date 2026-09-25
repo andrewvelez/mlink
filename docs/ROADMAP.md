@@ -14,10 +14,6 @@ All user owned data like profile data and images belongs to the user.  The defin
 
 App-specific data will be stored locally first and synced with a backend server, if it's not already just stored statically.  Geo-data changes infrequently enough that it could be stored statically; or if the geo-data is large, then segmented by locality and cached.
 
-### Data of Others
-
-The data of other users for sharing/searching will be eventually consistently available, but not guaranteed.  TBD on how that will be stored.
-
 
 
 ## Locality

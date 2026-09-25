@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
- * @author Andrew Velez 2026
- * @license SPDX-License-Identifier: MIT
+ * @author Andrew Velez
+ * @license MIT
  * @description Builds and serves Link-Up's browser PWA assets with Bun.
  */
 
