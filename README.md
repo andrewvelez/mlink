@@ -37,8 +37,10 @@ The current checkout contains minimal home and about pages, a web app manifest,
 browser service-worker registration, a service worker, automated tests, and the
 full-stack executable build pipeline. Build output is generated in `dist/`.
 
-The service worker currently regresses from the required one-year CacheOnly
-release-cache design. The repair is tracked in
-`.devtool/features/restore-one-year-cache-only-service-worker-2026-09-11.md`.
+The service worker uses bundled Workbox precaching with content revisions to
+make application resources available offline after installation completes.
+Precached resources are served cache-first, with a network fallback if a cache
+entry is missing. See [Service-Worker Cache Design](docs/DESIGN.md#service-worker-cache-design).
+
 Product workflows, local persistence, peer networking, encryption,
 notifications, and offline delivery remain unimplemented.

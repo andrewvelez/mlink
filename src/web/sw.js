@@ -6,4 +6,4 @@
 
 import { precacheAndRoute } from "workbox-precaching";
 
-precacheAndRoute(self.__WB_MANIFEST);
+precacheAndRoute(self.__WB_MANIFEST, { directoryIndex: "home.html" });

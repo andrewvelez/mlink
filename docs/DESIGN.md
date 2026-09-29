@@ -10,7 +10,7 @@ MLink is a local-first, mobile-first Progressive Web App (PWA). Its user interfa
 
 MLink is a mobile-first Progressive Web App (PWA) written in vanilla JavaScript using the hard local-first model described below. It runs in supported browsers and as an installed PWA. Authoritative user data and essential application logic remain on the user's device. Peer-to-peer networking is a means of exchanging data, but data sovereignty — not eliminating every server — is the architectural goal.
 
-The production deployment artifact is `dist/mlink`, a full-stack executable for VPS deployment. It embeds the completed PWA assets and serves them through its local HTTP routes. Its current host listens on `127.0.0.1:3000`; any public VPS-facing proxy or TLS arrangement is outside this project's current design.
+The production deployment artifact is `dist/mlink`, a full-stack executable for VPS deployment. It embeds the completed PWA assets and serves them through its local HTTP routes. Its current host listens on `127.0.0.1` with an operating-system-assigned port (`port: 0`) and logs the selected URL at startup; any public VPS-facing proxy or TLS arrangement is outside this project's current design.
 
 All shipped application source lives under `src/`, organized by responsibility: `web/` contains the browser application, including third-party assets under `web/external/`, and `server/` contains the executable host. The build copies `web/` into `dist/`, preserving its directory layout for browser asset URLs. `dist/` is generated build output and is never edited directly.
 
@@ -34,19 +34,11 @@ The completed PWA is intended to provide its local interface without depending o
 
 ### Service-Worker Cache Design
 
-On a first load, MLink may render a minimal network-backed shell with a loading indicator while it prepares the complete application cache. Once that cache is complete, application resources are served CacheOnly.
+MLink uses [Workbox precaching](https://developer.chrome.com/docs/workbox/modules/workbox-precaching) to make application resources available offline. The build bundles Workbox into the service worker and injects an asset manifest containing URLs and content revisions. The service worker passes this manifest to `precacheAndRoute(self.__WB_MANIFEST)`.
 
-Each release owns one named Cache containing all release resources and a reserved `{ createdAt, expiresAt }` metadata entry. `expiresAt` is one year after the cache is populated. A replacement cache must be complete before the previous release cache is removed.
+During installation, Workbox downloads new or changed resources and reuses unchanged cached resources. During activation, it removes precache entries that are absent from the current manifest. Requests matching the precache use Workbox's cache-first behavior: cached responses are served first, with a network fallback if a required cache entry is missing. Requests outside the precache use the network unless another service-worker route handles them. The initial page load uses the network while the service worker installs.
 
-The `version` property in `package.json` is the authoritative semantic application version. `getAppVersion()` in `build.js` returns `version+YYYYMMDD`, appending the UTC build date as SemVer build metadata. The build and cache identity must use that exact value, and the `app.js` and service-worker registration URLs must use `?v=${getAppVersion()}`.
-
-#### Current Regression
-
-The current `src/web/sw.js` does not meet this design: it is network-first for handled shell and navigation requests, has no one-year expiry metadata, and does not version `app.js` or the service-worker registration URL with `getAppVersion()`. Restoring the required behavior is tracked as a high-priority Todo card in `.devtool/features/restore-one-year-cache-only-service-worker-2026-09-11.md`.
-
-### Current Proof-of-Concept Boundary
-
-The proof of concept contains minimal home and about pages, a web app manifest, browser service-worker registration, a service worker, and a build pipeline that emits the VPS-deployable executable. Product workflows, local persistence, peer discovery, signalling, relaying, peer transport, cryptographic identity, encryption, notifications, and offline delivery are not implemented.
+The `version` property in `package.json` is the authoritative semantic application version. Workbox manages precache identity and invalidation through the generated asset revisions. The browser registers the service worker at `./sw.js` and uses the service-worker update lifecycle to install and activate changed builds.
 
 ### PWA User Interface
 
@@ -65,8 +57,8 @@ MLink PWA
 
 1. Delete `dist/` if it exists.
 2. Copy the PWA pages, manifest, and static assets from `src/web/` into `dist/`.
-3. Inject the Workbox asset manifest into `dist/sw.js`.
-4. Replace the service-worker cache-version placeholder with `getAppVersion()`.
+3. Bundle `src/web/sw.js` and Workbox into the intermediate `dist/sw.bundle.js`.
+4. Inject the Workbox asset manifest into that bundle to produce `dist/sw.js`, then remove `dist/sw.bundle.js`.
 5. Compile `src/server/server.js` and its route-embedded assets into `dist/mlink`.
 
 `bun run start` performs the same build and starts `src/server/server.js` for local development. Neither `build` nor `start` runs tests.

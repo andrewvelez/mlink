@@ -40,6 +40,8 @@ describe("service worker", () => {
     await import(`../src/web/sw.js?test=${Date.now()}`);
 
     expect(precacheAndRoute).toHaveBeenCalledTimes(1);
-    expect(precacheAndRoute).toHaveBeenCalledWith(manifest);
+    expect(precacheAndRoute).toHaveBeenCalledWith(manifest, {
+      directoryIndex: "home.html",
+    });
   });
 });

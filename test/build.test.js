@@ -256,6 +256,22 @@ test("fixture failure", () => {
       expect(headResponse.status).toBe(200);
       expect(postResponse.status).toBe(404);
       expect(missingResponse.status).toBe(404);
+
+      for (const [path, filename] of [
+        ["/", "home.html"],
+        ["/home", "home.html"],
+        ["/home.html", "home.html"],
+        ["/about", "about.html"],
+        ["/about.html", "about.html"],
+      ]) {
+        const response = await fetch(new URL(path, serverUrl));
+
+        expect(response.status).toBe(200);
+        expect(response.headers.get("Content-Type")).toContain("text/html");
+        expect(await response.text()).toBe(
+          readFileSync(join(fixtureDirectory, "dist", filename), "utf8"),
+        );
+      }
     } finally {
       child.kill();
       await child.exited;
