@@ -34,7 +34,7 @@ function asset(path) {
 }
 
 export const routes = {
-  "/": asset(home),
+  "/": asset(about),
   "/home": asset(home),
   "/home.html": asset(home),
   "/about": asset(about),
