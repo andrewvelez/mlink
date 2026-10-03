@@ -4,15 +4,23 @@
  * Description: Defines the shared presentation for the Link-Up PWA.
  */
 
-:root {
-  color-scheme: light dark;
+:root[data-theme="dark"] {
+  color-scheme: dark;
   font-family: system-ui, sans-serif;
-  background: #f5f7fa;
-  color: #172033;
-  --accent: #376fd0;
-  --accent-hover: #285bb2;
-  --header: #172033;
-  --surface: #ffffff;
+  background: #141414;
+  color: #f2eeee;
+  --accent: #ed7596;
+  --accent-hover: #ff9bb5;
+  --header: #0d0d0d;
+  --surface: #242122;
+  --pico-primary: var(--accent);
+  --pico-primary-hover: var(--accent-hover);
+  --pico-primary-background: #b52f54;
+  --pico-primary-border: var(--pico-primary-background);
+  --pico-primary-hover-background: #c73960;
+  --pico-primary-hover-border: var(--pico-primary-hover-background);
+  --pico-primary-focus: rgb(237 117 150 / 35%);
+  --pico-primary-inverse: #ffffff;
 }
 
 * {
@@ -94,19 +102,19 @@ button {
   border: 0;
   border-radius: 0.4rem;
   padding: 0.7rem 1rem;
-  background: var(--accent);
+  background: var(--pico-primary-background);
   color: #ffffff;
   font: inherit;
   cursor: pointer;
 }
 
 button:hover {
-  background: var(--accent-hover);
+  background: var(--pico-primary-hover-background);
 }
 
 button:focus-visible,
 a:focus-visible {
-  outline: 0.2rem solid #e1477e;
+  outline: 0.2rem solid var(--accent);
   outline-offset: 0.2rem;
 }
 
@@ -117,20 +125,5 @@ a:focus-visible {
 @media (min-width: 48rem) {
   .page {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    background: #10141d;
-    color: #f5f7fa;
-    --accent: #8db4ff;
-    --accent-hover: #6d9cf4;
-    --header: #080b11;
-    --surface: #1b2230;
-  }
-
-  button {
-    color: #10141d;
   }
 }

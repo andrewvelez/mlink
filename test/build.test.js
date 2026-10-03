@@ -130,6 +130,8 @@ describe("build", () => {
 
     for (const path of [
       "js/app.js",
+      "js/authentication.js",
+      "Default.html",
       "home.html",
       "about.html",
       "manifest.json",
@@ -155,6 +157,14 @@ describe("build", () => {
     expect(serviceWorker).toMatch(
       /"revision":"[a-f0-9]{32}","url":"home\.html"/,
     );
+    expect(serviceWorker).toMatch(
+      /"revision":"[a-f0-9]{32}","url":"Default\.html"/,
+    );
+    const manifest = JSON.parse(readFileSync(join(outputDirectory, "manifest.json"), "utf8"));
+    expect(manifest.start_url).toBe("/");
+    const defaultPage = readFileSync(join(outputDirectory, "Default.html"), "utf8");
+    expect(defaultPage).toContain('<script type="module" src="./js/app.js"></script>');
+    expect(defaultPage).toContain("<body></body>");
     expect(existsSync(join(outputDirectory, "sw.bundle.js"))).toBe(false);
   });
 
@@ -220,7 +230,9 @@ test("fixture failure", () => {
       const response = await fetch(serverUrl);
 
       expect(response.status).toBe(200);
-      expect(await response.text()).toContain("<title>Home</title>");
+      expect(await response.text()).toBe(
+        readFileSync(join(fixtureDirectory, "dist", "Default.html"), "utf8"),
+      );
     } finally {
       child.kill();
       await child.exited;
@@ -252,13 +264,16 @@ test("fixture failure", () => {
 
       expect(pageResponse.status).toBe(200);
       expect(pageResponse.headers.get("Content-Type")).toContain("text/html");
-      expect(await pageResponse.text()).toContain("<title>Home</title>");
+      expect(await pageResponse.text()).toBe(
+        readFileSync(join(fixtureDirectory, "dist", "Default.html"), "utf8"),
+      );
       expect(headResponse.status).toBe(200);
       expect(postResponse.status).toBe(404);
       expect(missingResponse.status).toBe(404);
 
       for (const [path, filename] of [
-        ["/", "home.html"],
+        ["/", "Default.html"],
+        ["/Default.html", "Default.html"],
         ["/home", "home.html"],
         ["/home.html", "home.html"],
         ["/about", "about.html"],
@@ -271,7 +286,17 @@ test("fixture failure", () => {
         expect(await response.text()).toBe(
           readFileSync(join(fixtureDirectory, "dist", filename), "utf8"),
         );
+        const head = await fetch(new URL(path, serverUrl), { method: "HEAD" });
+        expect(head.status).toBe(200);
+        expect(head.headers.get("Content-Type")).toContain("text/html");
+        expect(await head.text()).toBe("");
       }
+
+      const authenticationResponse = await fetch(new URL("js/authentication.js", serverUrl));
+      expect(authenticationResponse.status).toBe(200);
+      expect(await authenticationResponse.text()).toBe(
+        readFileSync(join(fixtureDirectory, "dist/js/authentication.js"), "utf8"),
+      );
     } finally {
       child.kill();
       await child.exited;

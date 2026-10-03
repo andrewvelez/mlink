@@ -3,7 +3,7 @@
   "scope": "./",
   "name": "mlink",
   "display": "standalone",
-  "start_url": "./about.html",
+  "start_url": "/",
   "short_name": "mlink",
   "theme_color": "#E1477E",
   "description": "A local-first Progressive Web App.",

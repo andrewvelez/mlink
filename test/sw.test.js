@@ -32,7 +32,8 @@ describe("service worker", () => {
   test("passes the injected manifest to Workbox precaching", async () => {
     const manifest = [
       { revision: "app-revision", url: "js/app.js" },
-      { revision: "home-revision", url: "home.html" },
+      { revision: "default-revision", url: "Default.html" },
+      { revision: "about-revision", url: "about.html" },
     ];
 
     globalThis.self = { __WB_MANIFEST: manifest };
@@ -41,7 +42,7 @@ describe("service worker", () => {
 
     expect(precacheAndRoute).toHaveBeenCalledTimes(1);
     expect(precacheAndRoute).toHaveBeenCalledWith(manifest, {
-      directoryIndex: "home.html",
+      directoryIndex: "Default.html",
     });
   });
 });

@@ -5,6 +5,7 @@
  */
 
 import { afterEach, describe, expect, mock, spyOn, test } from "bun:test";
+import { AuthenticationState } from "../src/web/js/authentication.js";
 
 const originalGlobals = new Map(
   ["document", "navigator", "window"].map((name) => [
@@ -43,6 +44,7 @@ function createElement(properties = {}) {
 async function loadApp({
   share,
   serviceWorker,
+  href = "https://example.test/home.html",
 } = {}) {
   const shareButton = createElement({ hidden: true });
   const windowListeners = new Map();
@@ -54,7 +56,8 @@ async function loadApp({
   };
   const window = {
     location: {
-      href: "https://example.test/home.html",
+      href,
+      replace: mock(() => {}),
     },
     addEventListener: mock((type, listener, options) => {
       windowListeners.set(type, { listener, options });
@@ -69,12 +72,13 @@ async function loadApp({
   globalThis.window = window;
   globalThis.navigator = navigator;
 
-  await import(`../src/web/js/app.js?test=${importNumber++}`);
+  const app = await import(`../src/web/js/app.js?test=${importNumber++}`);
 
   return {
     shareButton,
     window,
     windowListeners,
+    app,
   };
 }
 
@@ -87,6 +91,33 @@ afterEach(() => {
 });
 
 describe("app", () => {
+  test.each(["/", "/Default.html"])("Unknown startup redirects to About at %s", async (path) => {
+    const context = await loadApp({ href: `https://example.test${path}` });
+    expect(context.window.location.replace).toHaveBeenCalledWith("https://example.test/about.html");
+    expect(context.window.location.replace).toHaveBeenCalledTimes(1);
+  });
+
+  test.each([
+    [AuthenticationState.Known, "/"],
+    [AuthenticationState.Known, "/Default.html"],
+    [AuthenticationState.Authenticated, "/"],
+    [AuthenticationState.Authenticated, "/Default.html"],
+  ])("redirects %s startup at %s to Home", async (state, path) => {
+    const context = await loadApp({ href: `https://example.test${path}` });
+    context.window.location.replace.mockClear();
+    context.app.redirectStartup(state);
+    expect(context.window.location.replace).toHaveBeenCalledWith("https://example.test/home.html");
+    expect(context.window.location.replace).toHaveBeenCalledTimes(1);
+  });
+
+  test.each(["/about.html", "/about.html#startup", "/about", "/home.html", "/home"])("preserves explicit navigation to %s", async (path) => {
+    const context = await loadApp({ href: `https://example.test${path}` });
+    for (const state of Object.values(AuthenticationState)) {
+      context.app.redirectStartup(state);
+    }
+    expect(context.window.location.replace).not.toHaveBeenCalled();
+  });
+
   test("shares the current page", async () => {
     const share = mock(() => Promise.resolve());
     const context = await loadApp({ share });

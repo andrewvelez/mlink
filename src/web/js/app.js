@@ -1,10 +1,29 @@
 /**
  * @author Andrew Velez
  * @license MIT
- * @desc Enhances Link-Up pages with standard browser APIs.
+ * @description Enhances Link-Up pages with standard browser APIs.
  */
 
+import { getAuthenticationState, getStartPage } from "./authentication.js";
+
 const shareButton = document.querySelector("#share-button");
+
+/**
+ * @description Redirects startup entries while preserving explicit page navigation.
+ * @param {string} state An authentication state used to select the startup page.
+ * @returns {undefined}
+ */
+export function redirectStartup(state) {
+  /** @type {URL} The current page URL. */
+  const currentUrl = new URL(window.location.href);
+  if (currentUrl.pathname !== "/" && currentUrl.pathname !== "/Default.html") {
+    return;
+  }
+
+  /** @type {URL} The selected page at the application root. */
+  const startUrl = new URL(getStartPage(state), currentUrl);
+  window.location.replace(startUrl.href);
+}
 
 function shareLinkUp() {
   navigator.share({
@@ -35,4 +54,5 @@ function addAppListeners() {
   }
 }
 
+redirectStartup(getAuthenticationState());
 addAppListeners();

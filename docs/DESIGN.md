@@ -40,6 +40,8 @@ During installation, Workbox downloads new or changed resources and reuses uncha
 
 The `version` property in `package.json` is the authoritative semantic application version. Workbox manages precache identity and invalidation through the generated asset revisions. The browser registers the service worker at `./sw.js` and uses the service-worker update lifecycle to install and activate changed builds.
 
+The server and Workbox both resolve `/` to the non-visible `Default.html` startup page. The manifest has one stable start URL, `/`. Startup redirects Unknown users to About and Known or Authenticated users to Home using `location.replace()`, without adding a Back-history entry. Explicit Home and About navigation remains on the requested page in every authentication state. The authentication states distinguish no authentication cookie (Unknown), a cookie without authorization (Known), and a cookie with authorization (Authenticated). Authentication is not implemented, so the current state always resolves to Unknown, regardless of existing cookies.
+
 ### PWA User Interface
 
 The web platform is MLink's user-interface runtime. Vanilla JavaScript provides application behavior, HTML and CSS provide presentation, and supported browser APIs provide local storage, networking, installation, and notification capabilities as those parts of the design are implemented.
@@ -80,6 +82,7 @@ Bare `bun test` runs the test suite without the build step provided by `bun run 
 │   └── locality-diagram.png
 ├── src/
 │   ├── web/
+│   │   ├── Default.html
 │   │   ├── about.html
 │   │   ├── home.html
 │   │   ├── manifest.json

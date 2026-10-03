@@ -6,6 +6,8 @@
 
 import about from "../../dist/about.html" with { type: "file" };
 import app from "../../dist/js/app.js" with { type: "file" };
+import authentication from "../../dist/js/authentication.js" with { type: "file" };
+import defaultPage from "../../dist/Default.html" with { type: "file" };
 import home from "../../dist/home.html" with { type: "file" };
 import manifest from "../../dist/manifest.json" with { type: "file" };
 import serviceWorker from "../../dist/sw.js" with { type: "file" };
@@ -34,12 +36,14 @@ function asset(path) {
 }
 
 export const routes = {
-  "/": asset(about),
+  "/": asset(defaultPage),
+  "/Default.html": asset(defaultPage),
   "/home": asset(home),
   "/home.html": asset(home),
   "/about": asset(about),
   "/about.html": asset(about),
   "/js/app.js": asset(app),
+  "/js/authentication.js": asset(authentication),
   "/manifest.json": asset(manifest),
   "/icons/192x192.png": asset(icon192),
   "/icons/24x24.png": asset(icon24),
